@@ -1,5 +1,5 @@
 #EOC
-# $Id: Makefile,v 1.1 2009/08/04 14:52:05 bmy Exp $
+# $Id: Makefile,v 1.2 2009/08/04 17:02:22 bmy Exp $
 #------------------------------------------------------------------------------
 #          Harvard University Atmospheric Chemistry Modeling Group            !
 #------------------------------------------------------------------------------
@@ -113,8 +113,8 @@ clean:
 realclean:
 	$(MAKE) clean
 	$(MAKE) docclean
-	rm -f $(BIN)/*
-	rm -f $(LIB)/*
+	rm -f $(BIN)/*.x
+	rm -f $(LIB)/*.a
 
 test: check
 
