@@ -1,0 +1,11 @@
+# $Id: make_intro.txt,v 1.1 2009/08/04 14:52:05 bmy Exp $
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOI
+# !TITLE: Makefiles used to build the NcdfUtilities source code
+# !AUTHORS: Bob Yantosca
+# !AFFILIATION: School of Engineering and Applied Sciences, Harvard University
+# !DATE: August 4, 2009
+#EOI
+#------------------------------------------------------------------------------
