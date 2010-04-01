@@ -1,5 +1,5 @@
 #EOC
-# $Id: Makefile_header.mk,v 1.1 2009/08/04 14:52:05 bmy Exp $
+# $Id: Makefile_header.mk,v 1.1.1.1 2009/08/04 14:52:05 bmy Exp $
 #------------------------------------------------------------------------------
 #          Harvard University Atmospheric Chemistry Modeling Group            !
 #------------------------------------------------------------------------------
@@ -33,6 +33,9 @@
 #
 # !REVISION HISTORY: 
 #  04 Aug 2009 - R. Yantosca - Initial version
+#  01 Apr 2010 - R. Yantosca - Modified for netCDF-4.0.1 compiled for MPI
+#                              as built with the NASA baselibs.
+
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -43,23 +46,49 @@
 
 # Make ifort the default compiler
 ifndef COMPILER
-COMPILER = ifort
+COMPILER = mpif90
 endif
 
 ###############################################################################
 # Include directory for NETCDF library
-# Set this for your system!
-NC_INC_DIR = /home/bmy/NASA/basedir/x86_64-unknown-linux-gnu/ifort/Linux/include/netcdf/
-INC_NC     = -I$(NC_INC_DIR)
+# Modify this accordingly for your system!
+INC_NC     = -I$(BL_INC_NETCDF)
 ###############################################################################
 # Library link commands for NETCDF library
-# Set this for your system!
-NC_LIB_DIR = /home/bmy/NASA/basedir/x86_64-unknown-linux-gnu/ifort/Linux/lib/
-LINK_NC    = -L$(NC_LIB_DIR) -lnetcdf
+# Modify this accordingly for your system!
+LINK_NC    = -L$(BL_LIB_NETCDF) -lnetcdf -lmpi_cxx -lmpi
 ###############################################################################
 
 #==============================================================================
-# IFORT compilation options (default)
+# MPIF90 compilation options (default)
+#==============================================================================
+ifeq ($(COMPILER),mpif90) 
+
+# Pick correct options for debug run or regular run 
+ifdef DEBUG
+FFLAGS = -cpp -w -noalign -convert big_endian -g -traceback 
+else
+FFLAGS = -cpp -w -O2 -auto -noalign -convert big_endian -openmp
+endif
+
+# Add option for "array out of bounds" checking
+ifdef BOUNDS
+FFLAGS += -CB
+endif
+
+# Also add traceback option
+ifdef TRACEBACK
+FFLAGS += -traceback
+endif
+
+F90      = mpif90 $(FFLAGS) $(INC_NC)
+LD       = mpif90 $(FFLAGS)
+FREEFORM = -free
+
+endif
+
+#==============================================================================
+# IFORT compilation options
 #==============================================================================
 ifeq ($(COMPILER),ifort) 
 
