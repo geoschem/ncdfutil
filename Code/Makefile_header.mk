@@ -52,11 +52,11 @@ endif
 ###############################################################################
 # Include directory for NETCDF library
 # Modify this accordingly for your system!
-INC_NC     = -I$(BL_INC_NETCDF)
+INC_NC     = -I$(BL_INC_NETCDF) -I$(BL_INC_HDF5)
 ###############################################################################
 # Library link commands for NETCDF library
 # Modify this accordingly for your system!
-LINK_NC    = -L$(BL_LIB_NETCDF) -lnetcdf -lmpi_cxx -lmpi
+LINK_NC    = -L$(BL_LIB_NETCDF) -lmpi_cxx -lnetcdf -lmpi
 ###############################################################################
 
 #==============================================================================
