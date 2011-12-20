@@ -35,7 +35,6 @@
 #  04 Aug 2009 - R. Yantosca - Initial version
 #  01 Apr 2010 - R. Yantosca - Modified for netCDF-4.0.1 compiled for MPI
 #                              as built with the NASA baselibs.
-
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -46,17 +45,22 @@
 
 # Make ifort the default compiler
 ifndef COMPILER
-COMPILER = mpif90
+#COMPILER = mpif90
+COMPILER = ifort
 endif
 
 ###############################################################################
 # Include directory for NETCDF library
 # Modify this accordingly for your system!
-INC_NC     = -I$(BL_INC_NETCDF) -I$(BL_INC_HDF5)
+INC_NC  = -I$(BL_INC_NETCDF) -I$(BL_INC_HDF5)
 ###############################################################################
 # Library link commands for NETCDF library
 # Modify this accordingly for your system!
-LINK_NC    = -L$(BL_LIB_NETCDF) -lmpi_cxx -lnetcdf -lmpi
+LINK_NC = \
+-L$(BL_LIB_NETCDF) -lnetcdf \
+-L$(BL_LIB_HDF5) -lhdf5_hl \
+-L$(BL_LIB_HDF5) -lhdf5 \
+-L$(BL_LIB_ZLIB) -lz
 ###############################################################################
 
 #==============================================================================

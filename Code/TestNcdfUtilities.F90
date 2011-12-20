@@ -146,8 +146,8 @@ CONTAINS
     INTEGER             :: fId, vId
     INTEGER             :: var1(1),   var2(2),   var3(3)
     INTEGER             :: omode, i
-    REAL*8              :: psf(ilong, ilat)        ! surface pressure
-    REAL*8              :: kel(ilong, ilat, ivert) ! temperature
+    REAL*4              :: psf(ilong, ilat)        ! surface pressure
+    REAL*4              :: kel(ilong, ilat, ivert) ! temperature
     
     !=========================================================================
     ! Create the netCDF file
@@ -163,16 +163,16 @@ CONTAINS
     !=========================================================================
     
     ! Longitude dimension                      
-    WRITE( 6, '(a)' ) 'Writing XDim (# lons)   to netCDF file'    
-    CALL NcDef_Dimension( fId, 'XDim', ilong, lon_id )
+    WRITE( 6, '(a)' ) 'Writing LON        (# lons)   to netCDF file'    
+    CALL NcDef_Dimension( fId, 'lon', ilong, lon_id )
     
     ! Latitude dimension
-    WRITE( 6, '(a)' ) 'Writing YDim (# lats)   to netCDF file'    
-    CALL NcDef_Dimension( fId, 'YDim', ilat , lat_id )
+    WRITE( 6, '(a)' ) 'Writing LAT        (# lats)   to netCDF file'    
+    CALL NcDef_Dimension( fId, 'lat', ilat , lat_id )
     
     ! Altitude dimension
-    WRITE( 6, '(a)' ) 'Writing ZDim (# alts)   to netCDF file'    
-    CALL NcDef_Dimension( fId, 'ZDim', ivert, prs_id )
+    WRITE( 6, '(a)' ) 'Writing LEV        (# alts)   to netCDF file'    
+    CALL NcDef_Dimension( fId, 'lev', ivert, prs_id )
     
     !=========================================================================
     ! Define the variables and variable attributes
@@ -180,31 +180,31 @@ CONTAINS
 
     ! Define longitude variable
     var1 = (/ lon_id /)
-    CALL NcDef_variable( fId, 'LON', NF_FLOAT, 1, var1, vId )
+    CALL NcDef_variable( fId, 'lon', NF_DOUBLE, 1, var1, vId )
     CALL NcDef_var_attributes( fId, vId,  'long_name', 'Longitude'   )
     CALL NcDef_var_attributes( fId, vId,  'units',     'degree_east' )
   
     ! Define latitude variable
     var1 = (/ lat_id /)
-    CALL NcDef_variable( fId, 'LAT', NF_FLOAT, 1, var1, vId )
+    CALL NcDef_variable( fId, 'lat', NF_DOUBLE, 1, var1, vId )
     CALL NcDef_var_attributes( fId, vId, 'long_name', 'Latitude'     )
     CALL NcDef_var_attributes( fId, vId, 'units',     'degree_north' )
     
     ! Define vertical (pressure) variable
     var1 = (/ prs_id /)
-    CALL NcDef_variable( fId, 'PLEV', NF_FLOAT, 1, var1, vId )
+    CALL NcDef_variable( fId, 'lev', NF_DOUBLE, 1, var1, vId )
     CALL NcDef_var_attributes( fId, vId, 'long_name', 'Pressure' )
     CALL NcDef_var_attributes( fId, vId, 'units',     'hPa'      )
     
     ! Define surface pressure variable
     var2 = (/ lon_id, lat_id /)
-    CALL NcDef_variable( fId, 'PS', NF_FLOAT, 2, var2, vId )
+    CALL NcDef_variable( fId, 'ps', NF_FLOAT, 2, var2, vId )
     CALL NcDef_var_attributes(  fId, vId, 'long_name', 'Surface Pressure' )
     CALL NcDef_var_attributes ( fId, vId, 'units',     'hPa'              )
     
     ! Define 
     var3 = (/lon_id, lat_id, prs_id /)
-    CALL NcDef_variable( fId, 'T', NF_FLOAT, 3, var3, vId )
+    CALL NcDef_variable( fId, 't', NF_FLOAT, 3, var3, vId )
     CALL NcDef_var_attributes( fId, vId, 'long_name', 'Temperature' )
     CALL NcDef_var_attributes( fId, vId, 'units',     'K')
     
@@ -231,44 +231,44 @@ CONTAINS
     !=========================================================================
     ! Write longitude
     !=========================================================================
-    WRITE( 6, '(a)' ) 'Writing LON  (1D array) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing longitudes (1D array) to netCDF file'    
     st1d = (/ 1     /)
     ct1d = (/ ilong /)
-    call NcWr( longdat, fId, 'LON', st1d, ct1d )
+    call NcWr( longdat, fId, 'lon', st1d, ct1d )
     
     !=========================================================================
     ! Write latitude
     !=========================================================================
-    WRITE( 6, '(a)' ) 'Writing LAT  (1D array) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing latitudes  (1D array) to netCDF file'    
     st1d = (/ 1    /)
     ct1d = (/ ilat /)
-    call NcWr( latdat, fId, 'LAT', st1d, ct1d )
+    call NcWr( latdat, fId, 'lat', st1d, ct1d )
     
     !=========================================================================
     ! Write pressure levels
     !=========================================================================
-    WRITE( 6, '(a)' ) 'Writing PLEV (1D array) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing levels     (1D array) to netCDF file'    
     st1d = (/ 1     /)
     ct1d = (/ ivert /)
-    call NcWr( prsdat, fId, 'PLEV', st1d, ct1d )
+    call NcWr( prsdat, fId, 'lev', st1d, ct1d )
     
     !=========================================================================
     ! Write surface pressure
     !=========================================================================
-    WRITE( 6, '(a)' ) 'Writing PS   (2D array) to netCDF file'  
+    WRITE( 6, '(a)' ) 'Writing PS         (2D array) to netCDF file'  
     psf  = 1.0
     ct2d = (/ ilong, ilat /)
     st2d = (/ 1,     1    /)
-    CALL NcWr( psf, fId, 'PS', st2d, ct2d )
+    CALL NcWr( psf, fId, 'ps', st2d, ct2d )
     
     !=========================================================================
     ! Write temperature
     !=========================================================================
-    WRITE( 6, '(a)' ) 'Writing T    (3D array) to netCDF file'      
+    WRITE( 6, '(a)' ) 'Writing T          (3D array) to netCDF file'      
     kel  = 1.0
     ct3d = (/ ilong, ilat, ivert /)
     st3d = (/ 1,     1,    1     /)
-    CALL NcWr( kel, fId, 'T', st3d, ct3d )
+    CALL NcWr( kel, fId, 't', st3d, ct3d )
     
     !=========================================================================
     ! Close the netCDF file
@@ -329,7 +329,7 @@ CONTAINS
     INTEGER             :: ct1d(1), ct2d(2), ct3d(3)
     INTEGER             :: st1d(1), st2d(2), st3d(3)
     REAL*8, ALLOCATABLE :: lon(:),  lat(:),  plev(:)
-    REAL*8, ALLOCATABLE :: ps(:,:), t(:,:,:)
+    REAL*4, ALLOCATABLE :: ps(:,:), t(:,:,:)
   
     !=========================================================================
     ! Open the netCDF file
@@ -343,18 +343,18 @@ CONTAINS
     !=========================================================================
     ! Get the dimensions
     !=========================================================================
-    CALL Ncget_Dimlen( fId, 'XDim', XDim )
-    CALL Ncget_Dimlen( fId, 'YDim', YDim )
-    CALL Ncget_Dimlen( fId, 'ZDim', ZDim )
+    CALL Ncget_Dimlen( fId, 'lon', XDim )
+    CALL Ncget_Dimlen( fId, 'lat', YDim )
+    CALL Ncget_Dimlen( fId, 'lev', ZDim )
    
     rc = XDim - ILONG
-    CALL Check( 'Reading XDim back from netCDF file', rc, pCt, tCt )
+    CALL Check( 'Reading LON        back from netCDF file', rc, pCt, tCt )
 
     rc = YDim - ILAT
-    CALL Check( 'Reading YDim back read from netCDF', rc, pCt, tCt )
+    CALL Check( 'Reading LAT        back read from netCDF', rc, pCt, tCt )
 
     rc = ZDim - IVERT
-    CALL Check( 'Reading ZDim back from netCDF file', rc, pCt, tCt ) 
+    CALL Check( 'Reading LEV        back from netCDF file', rc, pCt, tCt ) 
 
     !=========================================================================
     ! Read the LON variable
@@ -364,11 +364,11 @@ CONTAINS
     ALLOCATE( lon( XDim ) )
     st1d = (/ 1    /)
     ct1d = (/ XDim /)
-    CALL NcRd( lon, fId, 'LON', st1d, ct1d )
+    CALL NcRd( lon, fId, 'lon', st1d, ct1d )
 
     ! Equality test
     rc = SUM( lon - longdat )
-    CALL Check( 'Reading LON  back from netCDF file', rc, pCt, tCt )
+    CALL Check( 'Reading longitudes back from netCDF file', rc, pCt, tCt )
 
     !=========================================================================
     ! Read the LAT variable
@@ -378,11 +378,11 @@ CONTAINS
     ALLOCATE( lat( YDim ) )
     st1d = (/ 1    /)
     ct1d = (/ YDim /)
-    CALL NcRd( lat, fId, 'LAT', st1d, ct1d )
+    CALL NcRd( lat, fId, 'lat', st1d, ct1d )
 
     ! Equality test
     rc = SUM( lat - latdat )
-    CALL Check( 'Reading LAT  back from netCDF file', rc, pCt, tCt )
+    CALL Check( 'Reading latitudes  back from netCDF file', rc, pCt, tCt )
 
     !=========================================================================
     ! Read the PLEV variable
@@ -392,11 +392,11 @@ CONTAINS
     ALLOCATE( plev( ZDim ) )
     st1d = (/ 1    /)
     ct1d = (/ ZDim /)
-    CALL NcRd( plev, fId, 'PLEV', st1d, ct1d )
+    CALL NcRd( plev, fId, 'lev', st1d, ct1d )
 
     ! Equality test
     rc = SUM( plev - prsdat )
-    CALL Check( 'Reading PLEV back from netCDF file', rc, pCt, tCt )
+    CALL Check( 'Reading altitudes  back from netCDF file', rc, pCt, tCt )
 
     !=========================================================================
     ! Read the PS variable
@@ -406,11 +406,11 @@ CONTAINS
     ALLOCATE( ps( XDim, YDim ) )
     st2d = (/ 1,    1    /)
     ct2d = (/ XDim, YDim /)
-    CALL NcRd( ps, fId, 'PS', st2d, ct2d )
+    CALL NcRd( ps, fId, 'ps', st2d, ct2d )
 
     ! Equality test
     rc = SUM( ps ) - SIZE( ps )
-    CALL Check( 'Reading PS   back from netCDF file', rc, pCt, tCt )
+    CALL Check( 'Reading PS         back from netCDF file', rc, pCt, tCt )
     
     !=========================================================================
     ! Read the T variable
@@ -420,11 +420,11 @@ CONTAINS
     ALLOCATE( t( XDim, YDim, ZDim ) )
     st3d = (/ 1,    1,    1    /)
     ct3d = (/ XDim, YDim, ZDim /)
-    CALL NcRd( t, fId, 'T', st3d, ct3d )
+    CALL NcRd( t, fId, 't', st3d, ct3d )
 
     ! Equality test
     rc = SUM( t ) - SIZE( t )
-    CALL Check( 'Reading T    back from netCDF file', rc, pCt, tCt )
+    CALL Check( 'Reading T          back from netCDF file', rc, pCt, tCt )
     
     ! Close netCDF file
     CALL NcCl( fId )
