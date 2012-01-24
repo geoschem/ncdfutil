@@ -1,5 +1,4 @@
 #EOC
-# $Id: Makefile_header.mk,v 1.1.1.1 2009/08/04 14:52:05 bmy Exp $
 #------------------------------------------------------------------------------
 #          Harvard University Atmospheric Chemistry Modeling Group            !
 #------------------------------------------------------------------------------
@@ -35,6 +34,8 @@
 #  04 Aug 2009 - R. Yantosca - Initial version
 #  01 Apr 2010 - R. Yantosca - Modified for netCDF-4.0.1 compiled for MPI
 #                              as built with the NASA baselibs.
+#  24 Jan 2012 - R. Yantosca - ifort is now the default compiler.  We will
+#                              invoke mpif90 at a later date.
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -45,7 +46,6 @@
 
 # Make ifort the default compiler
 ifndef COMPILER
-#COMPILER = mpif90
 COMPILER = ifort
 endif
 
@@ -64,35 +64,7 @@ LINK_NC = \
 ###############################################################################
 
 #==============================================================================
-# MPIF90 compilation options (default)
-#==============================================================================
-ifeq ($(COMPILER),mpif90) 
-
-# Pick correct options for debug run or regular run 
-ifdef DEBUG
-FFLAGS = -cpp -w -noalign -convert big_endian -g -traceback 
-else
-FFLAGS = -cpp -w -O2 -auto -noalign -convert big_endian -openmp
-endif
-
-# Add option for "array out of bounds" checking
-ifdef BOUNDS
-FFLAGS += -CB
-endif
-
-# Also add traceback option
-ifdef TRACEBACK
-FFLAGS += -traceback
-endif
-
-F90      = mpif90 $(FFLAGS) $(INC_NC)
-LD       = mpif90 $(FFLAGS)
-FREEFORM = -free
-
-endif
-
-#==============================================================================
-# IFORT compilation options
+# IFORT compilation options (default)
 #==============================================================================
 ifeq ($(COMPILER),ifort) 
 
@@ -115,6 +87,34 @@ endif
 
 F90      = ifort $(FFLAGS) $(INC_NC)
 LD       = ifort $(FFLAGS)
+FREEFORM = -free
+
+endif
+
+#==============================================================================
+# MPIF90 compilation options
+#==============================================================================
+ifeq ($(COMPILER),mpif90) 
+
+# Pick correct options for debug run or regular run 
+ifdef DEBUG
+FFLAGS = -cpp -w -noalign -convert big_endian -g -traceback 
+else
+FFLAGS = -cpp -w -O2 -auto -noalign -convert big_endian -openmp
+endif
+
+# Add option for "array out of bounds" checking
+ifdef BOUNDS
+FFLAGS += -CB
+endif
+
+# Also add traceback option
+ifdef TRACEBACK
+FFLAGS += -traceback
+endif
+
+F90      = mpif90 $(FFLAGS) $(INC_NC)
+LD       = mpif90 $(FFLAGS)
 FREEFORM = -free
 
 endif

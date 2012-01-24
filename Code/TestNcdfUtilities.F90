@@ -1,4 +1,3 @@
-! $Id: TestNcdfUtilities.F90,v 1.1 2009/08/04 14:52:04 bmy Exp $
 !------------------------------------------------------------------------------
 !          Harvard University Atmospheric Chemistry Modeling Group            !
 !------------------------------------------------------------------------------
@@ -36,12 +35,13 @@ PROGRAM TestNcdfUtilities
 ! !SYSTEM ROUTINES: 
 !  None
 !
-! !REVISION HISTORY: 
-!  03 Jul 2008 - R. Yantosca (Harvard University) - Initial version
-!
 ! !REMARKS:
 !  netCDF library modules originally written by Jules Kouatchou, GSFC
 !  and re-packaged into NcdfUtilities by Bob Yantosca, Harvard Univ.
+
+! !REVISION HISTORY: 
+!  03 Jul 2008 - R. Yantosca (Harvard University) - Initial version
+!  24 Jan 2012 - R. Yantosca - Modified to write COARDS-compliant output
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -51,14 +51,16 @@ PROGRAM TestNcdfUtilities
   ! Global private variables
   INTEGER, PARAMETER :: ILONG = 72               ! # of longitude grid points
   INTEGER, PARAMETER :: ILAT  = 46               ! # of latitude  grid points
-  INTEGER, PARAMETER :: IVERT = 55               ! # of pressure  levels 
+  INTEGER, PARAMETER :: IVERT = 55               ! # of altitude  levels 
+  INTEGER, PARAMETER :: ITIME = 1                ! # of times
   INTEGER            :: pCt                      ! # of passed tests
   INTEGER            :: tCt                      ! # of total tests
   INTEGER            :: I                        ! Loop index
   INTEGER            :: longdeg, latdeg          ! For longdat, latdat
-  REAL*8             :: longdat(ILONG)           ! Longitude data
-  REAL*8             :: latdat(ILONG)            ! Latitude data
-  REAL*8             :: prsdat(IVERT)            ! Altitude data
+  REAL*8             :: longDat(ILONG)           ! Longitude data
+  REAL*8             :: latDat (ILONG)           ! Latitude data
+  REAL*8             :: levDat (IVERT)           ! Altitude data
+  INTEGER            :: timeDat(ITIME)           ! Time data
 
   ! Initialize
   pCt = 0
@@ -68,19 +70,24 @@ PROGRAM TestNcdfUtilities
   longdeg = 360.0 / REAL( ILONG )
   if ( mod( 360, ILONG) /= 0 ) longdeg = longdeg + 1
   do i = 1, ILONG
-     longdat(i) = i*longdeg
+     longDat(i) = i*longdeg
   enddo
 
   ! Writing latitude data point
   latdeg  = 180.0 / REAL( ILAT )
   if ( mod( 180, ILAT ) /= 0 ) latdeg = latdeg + 1
   do i = 1, ilong
-     latdat(i) = -90 + (i-0.5)*latdeg
+     latDat(i) = -90 + (i-0.5)*latdeg
   enddo
 
   ! Pressure
   do i = 1, IVERT
-     prsdat(i) = 1000.00 - (i-1)*(920.00/IVERT) 
+     levDat(i) = 1000.00 - (i-1)*(920.00/IVERT) 
+  enddo
+
+  ! Time data
+  do i = 1, ITIME
+     timeDat(i) = 0
   enddo
 
   ! Echo info
@@ -130,24 +137,29 @@ CONTAINS
     USE m_netcdf_io_close
     
     ! Include files
-    INCLUDE "netcdf.inc"
+#   include "netcdf.inc"
 !
 ! !REVISION HISTORY: 
 !  03 Jul 2008 - R. Yantosca (Harvard University) - Initial version
+!  24 Jan 2012 - R. Yantosca - Modified to provide COARDS-compliant output
 !EOP
 !------------------------------------------------------------------------------
 !BOC
 !
 ! !LOCAL VARIABLES:
 !
-    INTEGER             :: lon_id,    lat_id,    prs_id
-    INTEGER             :: ct1d(1),   ct2d(2),   ct3d(3)
-    INTEGER             :: st1d(1),   st2d(2),   st3d(3)
-    INTEGER             :: fId, vId
-    INTEGER             :: var1(1),   var2(2),   var3(3)
-    INTEGER             :: omode, i
-    REAL*4              :: psf(ilong, ilat)        ! surface pressure
-    REAL*4              :: kel(ilong, ilat, ivert) ! temperature
+    ! For netCDF file I/O
+    INTEGER             :: idLon,    idLat,   idLev,   idTime
+    INTEGER             :: fId,      vId,     omode,   i
+    INTEGER             :: ct1d(1),  ct3d(3), ct4d(4)
+    INTEGER             :: st1d(1),  st3d(3), st4d(4)
+    INTEGER             :: var1(1),  var3(3), var4(4)
+    CHARACTER(LEN=255)  :: units,    delta_t, begin_d
+    CHARACTER(LEN=255)  :: begin_t,  incr
+
+    ! "Fake" data arrays
+    REAL*4              :: PS( ILONG, ILAT,        ITIME )  ! surface pressure
+    REAL*4              :: T ( ILONG, ILAT, IVERT, ITIME )  ! temperature
     
     !=========================================================================
     ! Create the netCDF file
@@ -158,122 +170,148 @@ CONTAINS
 
     CALL NcCr_Wr( fId, 'my_filename.nc' )
     
+    ! Turn filling off
+    CALL NcSetFill( fId, NF_NOFILL, omode )
+
     !=========================================================================
     ! Define the dimensions
     !=========================================================================
     
     ! Longitude dimension                      
-    WRITE( 6, '(a)' ) 'Writing LON        (# lons)   to netCDF file'    
-    CALL NcDef_Dimension( fId, 'lon', ilong, lon_id )
+    WRITE( 6, '(a)' ) 'Writing lon        (# lons)   to netCDF file'    
+    CALL NcDef_Dimension( fId, 'lon',  ILONG, idLon )
     
     ! Latitude dimension
-    WRITE( 6, '(a)' ) 'Writing LAT        (# lats)   to netCDF file'    
-    CALL NcDef_Dimension( fId, 'lat', ilat , lat_id )
+    WRITE( 6, '(a)' ) 'Writing lat        (# lats)   to netCDF file'    
+    CALL NcDef_Dimension( fId, 'lat',  ILAT , idLat )
     
     ! Altitude dimension
-    WRITE( 6, '(a)' ) 'Writing LEV        (# alts)   to netCDF file'    
-    CALL NcDef_Dimension( fId, 'lev', ivert, prs_id )
+    WRITE( 6, '(a)' ) 'Writing lev        (# alts)   to netCDF file'    
+    CALL NcDef_Dimension( fId, 'lev',  IVERT, idLev )
+
+    ! Altitude dimension
+    WRITE( 6, '(a)' ) 'Writing time       (# times)  to netCDF file'    
+    CALL NcDef_Dimension( fId, 'time', ITIME, idTime )
     
+    !=========================================================================
+    ! Define the variables and variable attributes 
+    ! for COARDS compliance and GAMAP compliance
+    !=========================================================================
+    CALL NcDef_Glob_Attributes( fId, 'Title',       'NcdfUtilities test file' )
+    CALL NcDef_Glob_Attributes( fId, 'History',     'test file - 24 Jan 2011' )
+    CALL NcDef_Glob_Attributes( fId, 'Conventions', 'COARDS'                  )
+    CALL NcDef_Glob_Attributes( fId, 'Model',       'GEOS4'                   )
+    CALL NcDef_Glob_Attributes( fId, 'Nlayers',     '55'                      )
+    CALL NcDef_Glob_Attributes( fId, 'Start_Date',  '20110101'                )
+    CALL NcDef_Glob_Attributes( fId, 'Start_Time',  '00:00:00.0'              )
+    CALL NcDef_Glob_Attributes( fId, 'End_Date',    '20110101'                )
+    CALL NcDef_Glob_Attributes( fId, 'End_Time',    '23:59:59.0'              )
+    CALL NcDef_Glob_Attributes( fId, 'Delta_Lon',   '5'                       )
+    CALL NcDef_Glob_Attributes( fId, 'Delta_Lat',   '4'                       )
+    CALL NcDef_Glob_Attributes( fId, 'Delta_Time',  '000000'                  )
+    CALL NcDef_Glob_Attributes( fId, 'Format',      'netCDF-3'                )
+
     !=========================================================================
     ! Define the variables and variable attributes
     !=========================================================================
 
     ! Define longitude variable
-    var1 = (/ lon_id /)
-    CALL NcDef_variable( fId, 'lon', NF_DOUBLE, 1, var1, vId )
-    CALL NcDef_var_attributes( fId, vId,  'long_name', 'Longitude'   )
-    CALL NcDef_var_attributes( fId, vId,  'units',     'degree_east' )
+    var1 = (/ idLon /)
+    CALL NcDef_Variable( fId, 'lon', NF_DOUBLE, 1, var1, vId )
+    CALL NcDef_Var_Attributes( fId, vId,  'long_name', 'Longitude'   )
+    CALL NcDef_Var_Attributes( fId, vId,  'units',     'degree_east' )
   
     ! Define latitude variable
-    var1 = (/ lat_id /)
-    CALL NcDef_variable( fId, 'lat', NF_DOUBLE, 1, var1, vId )
-    CALL NcDef_var_attributes( fId, vId, 'long_name', 'Latitude'     )
-    CALL NcDef_var_attributes( fId, vId, 'units',     'degree_north' )
+    var1 = (/ idLat /)
+    CALL NcDef_Variable( fId, 'lat', NF_DOUBLE, 1, var1, vId )
+    CALL NcDef_Var_Attributes( fId, vId, 'long_name', 'Latitude'     )
+    CALL NcDef_Var_Attributes( fId, vId, 'units',     'degree_north' )
     
     ! Define vertical (pressure) variable
-    var1 = (/ prs_id /)
-    CALL NcDef_variable( fId, 'lev', NF_DOUBLE, 1, var1, vId )
-    CALL NcDef_var_attributes( fId, vId, 'long_name', 'Pressure' )
-    CALL NcDef_var_attributes( fId, vId, 'units',     'hPa'      )
+    var1 = (/ idLev /)
+    CALL NcDef_Variable( fId, 'lev', NF_DOUBLE, 1, var1, vId )
+    CALL NcDef_Var_Attributes( fId, vId, 'long_name', 'Pressure' )
+    CALL NcDef_Var_Attributes( fId, vId, 'units',     'hPa'      )
     
+    ! Time index array (hardwire date to 2011/01/01)
+    var1    = (/ idTime /)
+    vId     = vId + 1
+    units   = 'minutes since 2011-01-01 00:00:00 GMT'
+    delta_t = '0000-00-00 00:00:00'
+    begin_d = '20110101'
+    begin_t = '000000'
+    incr    = '000000'
+    CALL NcDef_Variable      ( fId, 'time', NF_INT,  1, var1, vId           )
+    CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'time'           )
+    CALL NcDef_Var_Attributes( fId, vId, 'units',          TRIM( units   )  ) 
+    CALL NcDef_Var_Attributes( fId, vId, 'delta_t',        TRIM( delta_t )  ) 
+    CALL NcDef_Var_Attributes( fId, vId, 'begin_date',     TRIM( begin_d )  )
+    CALL NcDef_Var_Attributes( fId, vId, 'begin_time',     TRIM( begin_t )  )
+    CALL NcDef_Var_Attributes( fId, vId, 'time_increment', TRIM( incr    )  )
+
+
     ! Define surface pressure variable
-    var2 = (/ lon_id, lat_id /)
-    CALL NcDef_variable( fId, 'ps', NF_FLOAT, 2, var2, vId )
-    CALL NcDef_var_attributes(  fId, vId, 'long_name', 'Surface Pressure' )
-    CALL NcDef_var_attributes ( fId, vId, 'units',     'hPa'              )
+    var3 = (/ idLon, idLat, idTime /)
+    CALL NcDef_Variable      ( fId, 'PS', NF_FLOAT, 3, var3, vId )
+    CALL NcDef_Var_Attributes( fId, vId, 'long_name',     'Surface Pressure' )
+    CALL NcDef_Var_Attributes( fId, vId, 'units',          'hPa'             )
+    CALL NcDef_Var_Attributes( fId, vId, 'gamap_category', 'GMAO-2D'         )
     
     ! Define 
-    var3 = (/lon_id, lat_id, prs_id /)
-    CALL NcDef_variable( fId, 't', NF_FLOAT, 3, var3, vId )
-    CALL NcDef_var_attributes( fId, vId, 'long_name', 'Temperature' )
-    CALL NcDef_var_attributes( fId, vId, 'units',     'K')
-    
-    !=========================================================================
-    ! Define the variables and variable attributes
-    !=========================================================================
-    CALL NcDef_Glob_Attributes( fId,'title','Surf. Pres. & Temp. output' )
-    CALL NcDef_Glob_Attributes( fId,'history', &
-                                    'Initial file for testing - 051005' )
-    CALL NcDef_Glob_Attributes( fId,'Conventions','COARDS' )
-    
-    !=========================================================================
-    ! Set fill mode
-    !=========================================================================
+    var4 = (/ idLon, idLat, idLev, idTime /)
+    CALL NcDef_Variable      ( fId, 'T', NF_FLOAT, 4, var4, vId )
+    CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'Temperature'    )
+    CALL NcDef_Var_Attributes( fId, vId, 'units',          'K'              )
+    CALL NcDef_Var_Attributes( fId, vId, 'gamap_category', 'GMAO-3D$'       )
 
-    ! Turn filling off
-    CALL NcSetFill( fId, NF_NOFILL, omode )
-
+    
     !=========================================================================
     ! %%% END OF DEFINITION SECTION %%%
+    ! %%% NOW WRITE DATA TO FILE    %%%
     !=========================================================================
     CALL NcEnd_def( fId )
     
-    !=========================================================================
     ! Write longitude
-    !=========================================================================
     WRITE( 6, '(a)' ) 'Writing longitudes (1D array) to netCDF file'    
     st1d = (/ 1     /)
-    ct1d = (/ ilong /)
-    call NcWr( longdat, fId, 'lon', st1d, ct1d )
+    ct1d = (/ ILONG /)
+    CALL NcWr( longDat, fId, 'lon', st1d, ct1d )
     
-    !=========================================================================
     ! Write latitude
-    !=========================================================================
     WRITE( 6, '(a)' ) 'Writing latitudes  (1D array) to netCDF file'    
     st1d = (/ 1    /)
-    ct1d = (/ ilat /)
-    call NcWr( latdat, fId, 'lat', st1d, ct1d )
+    ct1d = (/ ILAT /)
+    CALL NcWr( latDat, fId, 'lat', st1d, ct1d )
     
-    !=========================================================================
     ! Write pressure levels
-    !=========================================================================
     WRITE( 6, '(a)' ) 'Writing levels     (1D array) to netCDF file'    
     st1d = (/ 1     /)
-    ct1d = (/ ivert /)
-    call NcWr( prsdat, fId, 'lev', st1d, ct1d )
+    ct1d = (/ IVERT /)
+    CALL NcWr( levDat, fId, 'lev', st1d, ct1d )
+
+    ! Write pressure levels
+    WRITE( 6, '(a)' ) 'Writing times      (1D array) to netCDF file'    
+    st1d = (/ 1     /)
+    ct1d = (/ ITIME /)
+    CALL NcWr( timeDat, fId, 'time', st1d, ct1d )
     
-    !=========================================================================
-    ! Write surface pressure
-    !=========================================================================
-    WRITE( 6, '(a)' ) 'Writing PS         (2D array) to netCDF file'  
-    psf  = 1.0
-    ct2d = (/ ilong, ilat /)
-    st2d = (/ 1,     1    /)
-    CALL NcWr( psf, fId, 'ps', st2d, ct2d )
+    ! Write surface pressure (w/ fake values)
+    WRITE( 6, '(a)' ) 'Writing PS         (3D array) to netCDF file'  
+    PS    = 1e0
+    st3d = (/ 1,     1,   1      /)
+    ct3d = (/ ILONG, ILAT, ITIME /)
+    CALL NcWr( PS, fId, 'PS', st3d, ct3d )
     
-    !=========================================================================
-    ! Write temperature
-    !=========================================================================
-    WRITE( 6, '(a)' ) 'Writing T          (3D array) to netCDF file'      
-    kel  = 1.0
-    ct3d = (/ ilong, ilat, ivert /)
-    st3d = (/ 1,     1,    1     /)
-    CALL NcWr( kel, fId, 't', st3d, ct3d )
+    ! Write temperature (w/ fake values)
+    WRITE( 6, '(a)' ) 'Writing T          (4D array) to netCDF file'      
+    T    = 1e0
+    st4d = (/ 1,     1,    1,     1     /)
+    ct4d = (/ ILONG, ILAT, IVERT, ITIME /)
+    CALL NcWr( T, fId, 'T', st4d, ct4d )
     
     !=========================================================================
     ! Close the netCDF file
     !=========================================================================
-
     CALL NcCl( fId )
 
     ! Echo info
@@ -313,23 +351,28 @@ CONTAINS
     USE m_netcdf_io_read
 
     ! Include files
-    INCLUDE "netcdf.inc"   ! netCDF include file
+#   include "netcdf.inc"   ! netCDF include file
 !
 ! !REVISION HISTORY: 
 !  03 Jul 2008 - R. Yantosca (Harvard University) - Initial version
+!  24 Jan 2012 - R. Yantosca - Modified to provide COARDS-compliant output
 !EOP
 !------------------------------------------------------------------------------
 !BOC
 !
 ! !LOCAL VARIABLES:
-!
- 
-    INTEGER             :: fId,     rc,      I
-    INTEGER             :: XDim,    YDim,    ZDim
-    INTEGER             :: ct1d(1), ct2d(2), ct3d(3)
-    INTEGER             :: st1d(1), st2d(2), st3d(3)
-    REAL*8, ALLOCATABLE :: lon(:),  lat(:),  plev(:)
-    REAL*4, ALLOCATABLE :: ps(:,:), t(:,:,:)
+!   
+    ! Scalars
+    INTEGER              :: fId,     rc,      XDim
+    INTEGER              :: YDim,    ZDim,    TDim
+    INTEGER              :: ct1d(1), ct3d(3), ct4d(4)
+    INTEGER              :: st1d(1), st3d(3), st4d(4)
+
+    ! Arraus
+    REAL*8,  ALLOCATABLE :: lon(:),  lat(:),  lev(:)
+    INTEGER, ALLOCATABLE :: time(:)
+    REAL*4,  ALLOCATABLE :: PS(:,:,:)
+    REAL*4,  ALLOCATABLE :: T(:,:,:,:)
   
     !=========================================================================
     ! Open the netCDF file
@@ -343,18 +386,22 @@ CONTAINS
     !=========================================================================
     ! Get the dimensions
     !=========================================================================
-    CALL Ncget_Dimlen( fId, 'lon', XDim )
-    CALL Ncget_Dimlen( fId, 'lat', YDim )
-    CALL Ncget_Dimlen( fId, 'lev', ZDim )
-   
+    CALL Ncget_Dimlen( fId, 'lon',  XDim )
+    CALL Ncget_Dimlen( fId, 'lat',  YDim )
+    CALL Ncget_Dimlen( fId, 'lev',  ZDim )
+    CALL Ncget_Dimlen( fId, 'time', TDim )
+
     rc = XDim - ILONG
-    CALL Check( 'Reading LON        back from netCDF file', rc, pCt, tCt )
+    CALL Check( 'Reading lon        back from netCDF file', rc, pCt, tCt )
 
     rc = YDim - ILAT
-    CALL Check( 'Reading LAT        back read from netCDF', rc, pCt, tCt )
+    CALL Check( 'Reading lat        back from netCDF file', rc, pCt, tCt )
 
     rc = ZDim - IVERT
-    CALL Check( 'Reading LEV        back from netCDF file', rc, pCt, tCt ) 
+    CALL Check( 'Reading lev        back from netCDF file', rc, pCt, tCt ) 
+
+    rc = TDim - ITIME
+    CALL Check( 'Reading time       back from netCDF file', rc, pCt, tCt ) 
 
     !=========================================================================
     ! Read the LON variable
@@ -367,7 +414,7 @@ CONTAINS
     CALL NcRd( lon, fId, 'lon', st1d, ct1d )
 
     ! Equality test
-    rc = SUM( lon - longdat )
+    rc = SUM( lon - longDat )
     CALL Check( 'Reading longitudes back from netCDF file', rc, pCt, tCt )
 
     !=========================================================================
@@ -381,35 +428,49 @@ CONTAINS
     CALL NcRd( lat, fId, 'lat', st1d, ct1d )
 
     ! Equality test
-    rc = SUM( lat - latdat )
+    rc = SUM( lat - latDat )
     CALL Check( 'Reading latitudes  back from netCDF file', rc, pCt, tCt )
 
     !=========================================================================
-    ! Read the PLEV variable
+    ! Read the LEV variable
     !=========================================================================
 
     ! Read data
-    ALLOCATE( plev( ZDim ) )
+    ALLOCATE( lev( ZDim ) )
     st1d = (/ 1    /)
     ct1d = (/ ZDim /)
-    CALL NcRd( plev, fId, 'lev', st1d, ct1d )
+    CALL NcRd( lev, fId, 'lev', st1d, ct1d )
 
     ! Equality test
-    rc = SUM( plev - prsdat )
+    rc = SUM( lev - levDat )
     CALL Check( 'Reading altitudes  back from netCDF file', rc, pCt, tCt )
+
+    !=========================================================================
+    ! Read the TIME variable
+    !=========================================================================
+
+    ! Read data
+    ALLOCATE( time( ZDim ) )
+    st1d = (/ 1    /)
+    ct1d = (/ ZDim /)
+    CALL NcRd( lev, fId, 'lev', st1d, ct1d )
+
+    ! Equality test
+    rc = SUM( time - timeDat )
+    CALL Check( 'Reading times      back from netCDF file', rc, pCt, tCt )
 
     !=========================================================================
     ! Read the PS variable
     !=========================================================================
 
     ! Read data    
-    ALLOCATE( ps( XDim, YDim ) )
-    st2d = (/ 1,    1    /)
-    ct2d = (/ XDim, YDim /)
-    CALL NcRd( ps, fId, 'ps', st2d, ct2d )
+    ALLOCATE( ps( XDim, YDim, TDim ) )
+    st3d = (/ 1,    1,    1    /)
+    ct3d = (/ XDim, YDim, TDim /)
+    CALL NcRd( ps, fId, 'PS', st3d, ct3d )
 
     ! Equality test
-    rc = SUM( ps ) - SIZE( ps )
+    rc = SUM( PS ) - SIZE( PS )
     CALL Check( 'Reading PS         back from netCDF file', rc, pCt, tCt )
     
     !=========================================================================
@@ -417,10 +478,10 @@ CONTAINS
     !=========================================================================
 
     ! Read data    
-    ALLOCATE( t( XDim, YDim, ZDim ) )
-    st3d = (/ 1,    1,    1    /)
-    ct3d = (/ XDim, YDim, ZDim /)
-    CALL NcRd( t, fId, 't', st3d, ct3d )
+    ALLOCATE( T( XDim, YDim, ZDim, TDim ) )
+    st4d = (/ 1,    1,    1,    1    /)
+    ct4d = (/ XDim, YDim, ZDim, TDim /)
+    CALL NcRd( T, fId, 'T', st4d, ct4d )
 
     ! Equality test
     rc = SUM( t ) - SIZE( t )
@@ -432,9 +493,10 @@ CONTAINS
     ! Cleanup
     IF ( ALLOCATED( lon  ) ) DEALLOCATE( lon  )
     IF ( ALLOCATED( lat  ) ) DEALLOCATE( lat  )
-    IF ( ALLOCATED( plev ) ) DEALLOCATE( plev )
-    IF ( ALLOCATED( ps   ) ) DEALLOCATE( ps   )
-    IF ( ALLOCATED( t    ) ) DEALLOCATE( t    )
+    IF ( ALLOCATED( lev  ) ) DEALLOCATE( lev  )
+    IF ( ALLOCATED( time ) ) DEALLOCATE( time )
+    IF ( ALLOCATED( PS   ) ) DEALLOCATE( PS   )
+    IF ( ALLOCATED( T    ) ) DEALLOCATE( T    )
 
     ! Echo info
     WRITE( 6, '(a)' ) '=== End of netCDF file read test! ==='

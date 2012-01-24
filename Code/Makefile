@@ -34,6 +34,7 @@
 #
 # !REVISION HISTORY: 
 #  04 Aug 2009 - R. Yantosca - Initial version
+#  24 Jan 2012 - R. Yantosca - Now explicitly list all dependencies
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -73,17 +74,46 @@ MOD  = $(SRC:.F90=.mod)
 # Files for standalone test driver (code, object, exe)
 OBJx = $(EXE:.x=.o)
 
-#------------------
+#-----------------
 # Dependencies
 #-----------------
-m_netcdf_io_close.o      : m_do_err_out.o
-m_netcdf_io_create.o     : m_do_err_out.o
-m_netcdf_io_define.o     : m_do_err_out.o
-m_netcdf_io_get_dimlen.o : m_do_err_out.o
-m_netcdf_io_handle_err.o : m_do_err_out.o
-m_netcdf_io_open.o       : m_do_err_out.o
-m_netcdf_io_read.o       : m_do_err_out.o
-m_netcdf_io_write.o      : m_do_err_out.o
+m_do_err_out.o           : m_do_err_out.F90
+
+m_netcdf_io_close.o      : m_netcdf_io_close.F90        \
+                           m_do_err_out.o
+
+m_netcdf_io_create.o     : m_netcdf_io_create.F90       \
+                           m_do_err_out.o
+
+m_netcdf_io_define.o     : m_netcdf_io_define.F90       \
+                           m_do_err_out.o
+
+m_netcdf_io_get_dimlen.o : m_netcdf_io_get_dimlen.F90   \
+                           m_do_err_out.o
+
+m_netcdf_io_handle_err.o : m_netcdf_io_handle_err.F90   \
+                           m_do_err_out.o
+
+m_netcdf_io_open.o       : m_netcdf_io_open.F90         \
+                           m_do_err_out.o
+
+m_netcdf_io_read.o       : m_netcdf_io_read.F90         \
+                           m_do_err_out.o
+
+m_netcdf_io_write.o      : m_netcdf_io_write.F90        \
+                           m_do_err_out.o
+
+TestNcdfUtilities.o      : TestNcdfUtilities.F90        \
+                           m_do_err_out.o               \
+                           m_netcdf_io_handle_err.o     \
+                           m_netcdf_io_create.o         \
+                           m_netcdf_io_define.o         \
+                           m_netcdf_io_write.o          \
+                           m_netcdf_io_close.o          \
+                           m_netcdf_io_open.o           \
+                           m_netcdf_io_close.o          \
+                           m_netcdf_io_get_dimlen.o     \
+                           m_netcdf_io_read.o
 
 #==============================================================================
 # Makefile targets
