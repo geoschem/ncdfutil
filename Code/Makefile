@@ -1,5 +1,4 @@
 #EOC
-# $Id: Makefile,v 1.2 2009/08/04 17:02:22 bmy Exp $
 #------------------------------------------------------------------------------
 #          Harvard University Atmospheric Chemistry Modeling Group            !
 #------------------------------------------------------------------------------
@@ -35,6 +34,7 @@
 # !REVISION HISTORY: 
 #  04 Aug 2009 - R. Yantosca - Initial version
 #  24 Jan 2012 - R. Yantosca - Now explicitly list all dependencies
+#  25 Jan 2012 - R. Yantosca - Added new module m_netcdf_io_readattr.F90
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -100,6 +100,9 @@ m_netcdf_io_open.o       : m_netcdf_io_open.F90         \
 m_netcdf_io_read.o       : m_netcdf_io_read.F90         \
                            m_do_err_out.o
 
+m_netcdf_io_readattr.o   : m_netcdf_io_readattr.F90     \
+                           m_do_err_out.o
+
 m_netcdf_io_write.o      : m_netcdf_io_write.F90        \
                            m_do_err_out.o
 
@@ -109,11 +112,11 @@ TestNcdfUtilities.o      : TestNcdfUtilities.F90        \
                            m_netcdf_io_create.o         \
                            m_netcdf_io_define.o         \
                            m_netcdf_io_write.o          \
-                           m_netcdf_io_close.o          \
                            m_netcdf_io_open.o           \
-                           m_netcdf_io_close.o          \
                            m_netcdf_io_get_dimlen.o     \
-                           m_netcdf_io_read.o
+                           m_netcdf_io_read.o           \
+                           m_netcdf_io_readattr.o       \
+                           m_netcdf_io_close.o
 
 #==============================================================================
 # Makefile targets
