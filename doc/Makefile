@@ -23,6 +23,7 @@
 #
 # !REVISION HISTORY: 
 #  04 Aug 2009 - R. Yantosca - Initial version
+#  25 Jan 2012 - R. Yantosca - Now add m_netcdf_io_readattr.F90
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -60,6 +61,7 @@ $(CODEDIR)/m_netcdf_io_get_dimlen.F90 \
 $(CODEDIR)/m_netcdf_io_handle_err.F90 \
 $(CODEDIR)/m_netcdf_io_open.F90       \
 $(CODEDIR)/m_netcdf_io_read.F90       \
+$(CODEDIR)/m_netcdf_io_readattr.F90   \
 $(CODEDIR)/m_netcdf_io_write.F90      \
 $(CODEDIR)/TestNcdfUtilities.F90
 

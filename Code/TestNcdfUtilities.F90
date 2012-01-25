@@ -451,8 +451,8 @@ CONTAINS
     ! Read data
     ALLOCATE( time( TDim ) )
     st1d = (/ 1    /)
-    ct1d = (/ Tdim /)
-    CALL NcRd( lev, fId, 'time', st1d, ct1d )
+    ct1d = (/ TDim /)
+    CALL NcRd( time, fId, 'time', st1d, ct1d )
 
     ! Equality test
     rc = SUM( time - timeDat )
