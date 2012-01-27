@@ -1,5 +1,7 @@
 ### !FILENAME:
-Fortran Cmds File   = nc_define.F
+Fortran Def File    = nc_define.F
+Fortran Write File  = nc_write.F
+Fortran Read File   = nc_read.F
 netCDF FileHandle   = fId
 netCDF FileName     = GEOSCHEM.nc
 
@@ -28,7 +30,7 @@ time                = 1
 
 
 ### !VARIABLES:
-lon                 = REAL*8::lon
+lon                 = REAL*4::lon
 lon:long_name       = longitude
 lon:units           = degrees_east
 #-

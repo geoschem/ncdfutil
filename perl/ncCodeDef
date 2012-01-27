@@ -135,6 +135,7 @@ sub readRcFile($) {
 #
 # !REVISION HISTORY:
 #  27 Jan 2012 - R. Yantosca - Initial version
+#  27 Jan 2012 - R. Yantosca - Now get output filename from the resource file
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -159,7 +160,7 @@ sub readRcFile($) {
   
   # Get the name of the output file
   foreach $line ( @lines ) {
-    if ( $line =~ 'Fortran Cmds File' ) {
+    if ( $line =~ 'Fortran Def File' ) {
       ( $name, $cmdFile ) = &splitLine( $line, '=' );
     }
   }
