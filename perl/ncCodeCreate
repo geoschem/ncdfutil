@@ -1,0 +1,559 @@
+#!/usr/bin/perl -w
+
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOP
+#
+# !MODULE: ncCodeCreate
+#
+# !DESCRIPTION: This Perl script creates Fortran code to create a netCDF
+#  file, using routines from the NcdfUtilities package.
+#\\
+#\\
+# !USES:
+#
+  require 5.003;        # need this version of Perl or newer
+  use strict 'refs';    # Do not allow symbolic references
+  use strict 'subs';    # Treat all barewords as syntax errors 
+#
+# !PUBLIC DATA MEMBERS:
+#
+  $F_ID = "";           # netCDF file ID
+#
+# !CALLING SEQUENCE:
+# ncCodeCreate RESOURCE-FILE-NAME
+#
+# !REVISION HISTORY: 
+#  27 Jan 2012 - R. Yantosca - Initial version
+#EOP
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOP
+#
+# !IROUTINE: splitLine
+#
+# !DESCRIPTION:  Routine splitLine splits a line on a given delimiter, and
+#  strips white space.  Convenience wrapper for the Perl "split" function.
+#\\
+#\\
+# !INTERFACE:
+#
+sub splitLine($$$) {
+#
+# !INPUT PARAMETERS:
+#
+  # Line to be split, and the delimeter character
+  # Don't strip the white from $value if $noSplitVal==1
+  my( $line, $delim, $noSplitVal ) = @_;
+#
+# !CALLING SEQUENCE:
+# ( $name, $value ) = &splitLine( $line );
+#
+# !REVISION HISTORY:
+#  27 Jan 2012 - R. Yantosca - Initial version
+#EOP
+#------------------------------------------------------------------------------
+#BOC
+#
+# !LOCAL VARIABLES:
+#
+  # Split the line
+  my @subStr =  split( $delim, $line );
+  my $name   =  $subStr[0];
+  my $value  =  $subStr[1];
+  
+  # Strip white space
+  $name      =~ s/ //g;
+
+  # Strip white space from value if necessary
+  if ( $noSplitVal == 0 ) { $value=~ s/ //g;}
+
+  # Return substrings
+  return( $name, $value );
+}
+#EOP
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOP
+#
+# !IROUTINE: readRcFile
+#
+# !DESCRIPTION:  Routine readRcFile reads the resource file which defines
+#  the variables and attributes to be written to the netCDF file.
+#\\
+#\\
+# !INTERFACE:
+#
+sub readRcFile($) {
+#
+# !INPUT PARAMETERS:
+#
+  # $fileName : File containing default settings to be read
+  my ( $fileName ) = @_;
+#
+# !CALLING SEQUENCE:
+# &readRcFile( RESOURCE-FILE-NAME );
+#
+# !REVISION HISTORY:
+#  27 Jan 2012 - R. Yantosca - Initial version
+#EOP
+#------------------------------------------------------------------------------
+#BOC
+#
+# !LOCAL VARIABLES:
+#
+  my @lines = ();
+
+  #-----------------------------------------
+  # Read variable settings from the file
+  #-----------------------------------------
+  open( I, "<$fileName" ) or die "Cannot open $fileName!\n";
+  chomp( @lines = <I> );
+  close( I );
+
+  #-----------------------------------------
+  # Write code snippets to the output file
+  #-----------------------------------------
+  open( O, ">ncdf_code.F" ) or die "Cannot open ncdf_code.F\n";
+
+  # Pass thru @lines array so that we can declare Fortran variables
+  &writeFortranVars( \*O, @lines );
+
+  # Pass thru @lines array again to write 
+  &writeFortranCalls( \*O, @lines );
+
+  #-----------------------------------------
+  # Cleanup and quit
+  #-----------------------------------------
+
+  # Close output file
+  close( O );
+
+  # Return
+  return( 0 );
+}
+#EOP
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOP
+#
+# !IROUTINE: writeFortranVars
+#
+# !DESCRIPTION:  Routine writeFortranVars writes all of the necessary
+#  Fortran variables for using the NcdfUtilities routines.
+#\\
+#\\
+# !INTERFACE:
+#
+sub writeFortranVars($@) {
+#
+# !INPUT PARAMETERS:
+#
+  # $O     : File handle 
+  # @lines : Contents of the resource file
+  my ( $O, @lines ) = @_;
+#
+# !CALLING SEQUENCE:
+# @lines = &readRcFile( FILENAME );
+#
+# !REVISION HISTORY:
+#  24 Oct 2011 - R. Yantosca - Initial version, based on GEOS_5/perl/doGeos5
+#EOP
+#------------------------------------------------------------------------------
+#BOC
+#
+# !LOCAL VARIABLES:
+#
+  my @subStr = ();
+  my $name   = "";
+  my $value  = "";
+  my $txt    = "";
+
+  #-------------------------------------------------------
+  # Write USE statements 
+  #-------------------------------------------------------
+  $txt  = <<EOF;
+      ! Modules for netCDF write
+      USE m_netcdf_io_create
+      USE m_netcdf_io_define
+      USE m_netcdf_io_write
+      USE m_netcdf_io_close
+
+      IMPLICIT NONE
+      PRIVATE
+
+\#     include "netcdf.inc"
+
+      !=================================================================
+      ! Variable declarations
+      !=================================================================
+EOF
+  print O "$txt\n";
+
+  # Loop thru the LINES array
+  for ( my $i = 0; $i < scalar( @lines ); $i++ ) {
+
+    #----------------------------------------------------
+    # FILENAME section
+    #----------------------------------------------------
+    if ( $lines[$i] =~ '!FILENAME:' ) {
+      		
+      while ( $lines[++$i] ne '' ) {
+		
+	# Split the line on the equals sign
+	( $name, $value ) = &splitLine( $lines[$i], '=', 0 );
+      
+	# Declare netCDF file and variable ID's
+	if ( $name =~ 'FileHandle' ) { 
+	  $F_ID = $value;
+	  $txt  = "      ! Declare netCDF file ID and variable ID\n";
+	  $txt .= "      INTEGER            :: $F_ID\n";
+	  $txt .= "      INTEGER            :: vId\n";
+	  $txt .= "      INTEGER            :: omode\n";
+	}	      
+      }			       
+
+    #----------------------------------------------------
+    # DIMENSIONS section
+    #----------------------------------------------------
+    } elsif ( $lines[$i] =~ '!DIMENSIONS:' ) {
+
+      # Comment line
+      $txt .= "\n      ! Variables for netCDF dimensions\n";
+
+      while ( $lines[++$i] ne '' ) {
+
+	# Split the line 
+	( $name, $value ) = &splitLine( $lines[$i], '=', 0 );
+
+	# Write a Fortran var for each netCDF dimension
+	$txt .= "      INTEGER            :: id_$name\n";
+      }
+    }
+  }
+
+  #-------------------------------------------------------
+  # OTHER VARIABLES section
+  #-------------------------------------------------------
+  $txt .= "\n      ! Variables for netCDF attributes\n";
+  $txt .= "      CHARACTER(LEN=255) :: a_name\n";
+  $txt .= "      CHARACTER(LEN=255) :: a_val\n";
+  $txt .= "\n      ! Arrays for var ID's, starting points, and var sizes\n";
+  $txt .= "      INTEGER            :: var1d(1), st1d(1), ct1d(1)\n";
+  $txt .= "      INTEGER            :: var2d(2), st2d(2), ct2d(2)\n";
+  $txt .= "      INTEGER            :: var3d(3), st3d(3), ct3d(3)\n";
+  $txt .= "      INTEGER            :: var4d(4), st4d(4), ct4d(4)\n";
+  $txt .= "      INTEGER            :: var5d(5), st4d(5), ct4d(5)\n";
+  print $O "$txt\n";
+
+  # Return
+  return( 0 );
+}
+#EOP
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOP
+#
+# !IROUTINE: writeFortranCalls
+#
+# !DESCRIPTION:  Routine getDefaults reads the default values for 
+#  input quantities.
+#\\
+#\\
+# !INTERFACE:
+#
+sub writeFortranCalls($@) {
+#
+# !INPUT PARAMETERS:
+#
+  # $O     : File handle 
+  # @lines : Contents of the resource file
+  my ( $O, @lines ) = @_;
+#
+# !REVISION HISTORY:
+#  27 Jan 2012 - R. Yantosca - Initial version
+#EOP
+#------------------------------------------------------------------------------
+#BOC
+#
+# !LOCAL VARIABLES:
+#
+  my $txt = "";
+
+  # Add a spacer comment to the Fortran code
+  $txt .= "\n      !=================================================================\n";
+  $txt .= "      ! %%%%% NETCDF DEFINITION SECTION %%%%%\n";
+  $txt .= "      !================================================================\n";
+
+  # Write to file
+  print $O "$txt\n";
+
+  # Loop thru each line in the file
+  for ( my $i = 0; $i < scalar( @lines ); $i++ ) {
+
+    #----------------------------------------------------
+    # FILENAME section
+    #----------------------------------------------------
+    if ( $lines[$i] =~ '!FILENAME:' ) {
+
+      while ( $lines[++$i] ne '') { 
+	&handleFileName( \*O, $lines[$i] );
+      }
+      
+    #----------------------------------------------------
+    # GLOBAL ATTRIBUTES section
+    #----------------------------------------------------
+    } elsif ( $lines[$i] =~ '!GLOBAL ATTRIBUTES:' ) {
+
+      # Add a spacer comment to the Fortran code
+      $txt  = "      !--------------------------------\n";
+      $txt .= "      ! GLOBAL ATTRIBUTES\n";
+      $txt .= "      !--------------------------------\n";
+      print $O "$txt\n";
+
+      # Write Fortran calls to define global attributes
+      while ( $lines[++$i] ne '') {
+	&handleGlobalAtts( \*O, $lines[$i] );
+      }
+
+    #----------------------------------------------------
+    # DIMENSIONS section
+    #----------------------------------------------------
+    } elsif ( $lines[$i] =~ '!DIMENSIONS:' ) { 
+
+      # Add a spacer comment to the Fortran code
+      $txt  = "      !--------------------------------\n";
+      $txt .= "      ! DIMENSIONS\n";
+      $txt .= "      !--------------------------------\n";
+      print $O "$txt\n";
+				
+      # Write Fortran calls to define dimensions
+      while ( $lines[++$i] ne '') {
+	&handleDimensions( \*O, $lines[$i] );
+      }
+
+    #----------------------------------------------------
+    # INDEX ARRAYS section
+    #----------------------------------------------------
+    } elsif ( $lines[$i] =~ '!INDEX ARRAYS:' ) {
+
+#      while ( $lines[++$i] ne '') {
+#	&handleIndexArrays( \*O, $lines[$i] );
+#      }
+
+    #----------------------------------------------------
+    # VARIABLES section
+    #----------------------------------------------------
+    } elsif ( $lines[$i] =~ '!VARIABLES:' ) {
+
+    }			       
+  }
+
+  # Add a spacer comment to the Fortran code
+  $txt  = "\n      !=================================================================\n";
+  $txt .= "      ! %%%%% END OF NETCDF DEFINITION SECTION %%%%%\n";
+  $txt .= "      !=================================================================\n";
+  print $O "$txt\n";
+}
+#EOP
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOP
+#
+# !IROUTINE: handleFileName
+#
+# !DESCRIPTION:  Routine handleFileName writes the proper Fortran calls
+#  to NcdfUtilities routines for opening a netCDF file.
+#\\
+#\\
+# !INTERFACE:
+#
+sub handleFileName($$) {
+#
+# !INPUT PARAMETERS:
+#
+  # $O     : File handle 
+  # @lines : A single line from the resource file
+  my ( $O, $line ) = @_;
+#
+# !CALLING SEQUENCE:
+# &handleFileName( \*O, $line );
+#
+# !REVISION HISTORY:
+#  27 Jan 2012 - R. Yantosca - Initial version
+#EOP
+#------------------------------------------------------------------------------
+#BOC
+#
+# !LOCAL VARIABLES:
+#
+  # Split the name on the equals sign
+  my( $name, $value ) = &splitLine( $line, '=', 0 );
+
+  if ( $name =~ 'FileHandle' ) { 
+    return(0);
+  
+  } elsif ( $name =~ 'FileName' ) {
+    my $txt = <<EOF;
+      ! Open filename
+      CALL NcCr_Wr( $F_ID, "$value" )
+
+      ! Turn filling off
+      CALL NcSetFill( $F_ID, NF_NOFILL, omode )     
+EOF
+
+     # Write to file
+     print $O "$txt\n";
+  }
+
+  # Return
+  return( 0 );
+}
+#EOP
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOP
+#
+# !IROUTINE: handleGlobalAtts
+#
+# !DESCRIPTION:  Routine handleGlobalAtts writes the proper Fortran calls
+#  to NcdfUtilities routines for defining global attributes.
+#\\
+#\\
+# !INTERFACE:
+#
+sub handleGlobalAtts($$) {
+#
+# !INPUT PARAMETERS:
+#
+  # $O     : File handle 
+  # @lines : A single line from the resource file
+  my ( $O, $line ) = @_;
+#
+# !CALLING SEQUENCE:
+# &handleGlobalAtts( \*O, $line );
+#
+# !REVISION HISTORY:
+#  27 Jan 2012 - R. Yantosca - Initial version
+#EOP
+#------------------------------------------------------------------------------
+#BOC
+#
+# !LOCAL VARIABLES:
+#
+  # Split the name on the equals sign
+  my( $name, $value ) = &splitLine( $line, '=', 1 );
+
+  # Define the text string
+  my $txt = <<EOF;
+      ! Define the $name global attribute
+      a_name = "$name"
+      a_val  = "$value"
+      CALL NcDef_Glob_Attributes( $F_ID, TRIM( a_name ), TRIM( a_val ) )
+EOF
+
+  # Write to file
+  print $O "$txt\n";
+
+  # Return
+  return( 0 );
+}
+#EOP
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOP
+#
+# !IROUTINE: getDefaults
+#
+# !DESCRIPTION:  Routine getDefaults reads the default values for 
+#  input quantities.
+#\\
+#\\
+# !INTERFACE:
+#
+sub handleDimensions($$) {
+#
+# !INPUT PARAMETERS:
+#
+  # $fileName : File containing default settings to be read
+  my ( $O, $line ) = @_;
+#
+# !CALLING SEQUENCE:
+# @lines = &readRcFile( FILENAME );
+#
+# !REVISION HISTORY:
+#  24 Oct 2011 - R. Yantosca - Initial version, based on GEOS_5/perl/doGeos5
+#EOP
+#------------------------------------------------------------------------------
+#BOC
+#
+# !LOCAL VARIABLES:
+#
+  # Split the line on the equals sign
+  my( $name, $value ) = &splitLine( $line, '=', 0 );
+
+  # HERE doc to define Fortran commands
+  my $txt = <<EOF;
+      ! Define $name dimension
+      CALL NcDef_Dimension( $F_ID, '$name', $value, id_$name )
+EOF
+
+  # Write to output file     
+  print O "$txt\n";
+
+  # Return
+  return( 0 );
+}
+#EOC
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOP
+#
+# !IROUTINE: main
+#
+# !DESCRIPTION: Routine main is the driver routine for the doGeos5 script.
+#\\
+#\\
+# !INTERFACE:
+#
+sub main() {
+#
+# !CALLING SEQUENCE:
+#  &main();
+#
+# !REVISION HISTORY:
+#  24 Oct 2011 - R. Yantosca - Initial version, based on GEOS_5/perl/doGeos5
+#EOP
+#------------------------------------------------------------------------------
+#BOC
+
+  # Error check arguments
+  if ( scalar( @ARGV ) == 0 ) { 
+    print "Usage: ncCodeCreate RESOURCE-FILE\n"; 
+    exit(1);
+  }
+
+  # Get default values
+  &readRcFile( $ARGV[0] );
+
+  # Return normally
+  return( 0 );
+}
+#EOC
+
+#------------------------------------------------------------------------------
+
+# Start main program
+main();
+
+# Exit normally
+exit(0);
