@@ -35,6 +35,7 @@
 #  04 Aug 2009 - R. Yantosca - Initial version
 #  24 Jan 2012 - R. Yantosca - Now explicitly list all dependencies
 #  25 Jan 2012 - R. Yantosca - Added new module m_netcdf_io_readattr.F90
+#  30 Jan 2012 - R. Yantosca - Now create/read modules in the ../mod directory
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -49,6 +50,7 @@ BIN     = ../bin
 DOC     = ../doc
 EXE     = TestNcdfUtilities.x
 LIB     = ../lib
+MOD     = ../mod
 
 # Include header file.  This returns variables F90, LD, LINK_NC
 # as well as the default Makefile compilation rules for source code files.
@@ -69,7 +71,6 @@ include ./Makefile_header.mk
 # Files for library build (code & objects)
 SRC  = $(wildcard m_*.F90)
 OBJ  = $(SRC:.F90=.o)
-MOD  = $(SRC:.F90=.mod)
 
 # Files for standalone test driver (code, object, exe)
 OBJx = $(EXE:.x=.o)
@@ -148,6 +149,7 @@ realclean:
 	$(MAKE) docclean
 	rm -f $(BIN)/*.x
 	rm -f $(LIB)/*.a
+	rm -f $(MOD)/*.mod
 
 test: check
 

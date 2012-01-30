@@ -36,6 +36,7 @@
 #                              as built with the NASA baselibs.
 #  24 Jan 2012 - R. Yantosca - ifort is now the default compiler.  We will
 #                              invoke mpif90 at a later date.
+#  30 Jan 2012 - R. Yantosca - Now create/read modules in the $MOD directory
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -85,6 +86,9 @@ ifdef TRACEBACK
 FFLAGS += -traceback
 endif
 
+# Look for F90 module files in the $(MOD) directory
+FFLAGS += -I./ -module $(MOD)
+
 F90      = ifort $(FFLAGS) $(INC_NC)
 LD       = ifort $(FFLAGS)
 FREEFORM = -free
@@ -113,6 +117,9 @@ ifdef TRACEBACK
 FFLAGS += -traceback
 endif
 
+# Look for F90 module files in the $(MOD) directory
+FFLAGS += -I./ -module $(MOD)
+
 F90      = mpif90 $(FFLAGS) $(INC_NC)
 LD       = mpif90 $(FFLAGS)
 FREEFORM = -free
@@ -135,6 +142,9 @@ endif
 ifdef BOUNDS
 FFLAGS += -C
 endif
+
+# Look for F90 module files in the $(MOD) directory
+FFLAGS += -I./ -module $(MOD)
 
 F90      = pgf90 $(FFLAGS) $(INC_NC)
 LD       = pgf90 $(FFLAGS)
@@ -196,6 +206,9 @@ ifdef BOUNDS
 FFLAGS += -C
 endif
 
+# Look for F90 module files in the $(MOD) directory
+FFLAGS += -I./ -moddir=$(MOD) -M$(MOD)
+
 F90      = xlf90_r $(FFLAGS) $(INC_NC)
 LD       = xlf90_r $(FFLAGS)
 FREEFORM = -qrealsize=8
@@ -215,7 +228,7 @@ endif
 # Export global variables so that the main Makefile will see these
 #==============================================================================
 export F90
-export FREEFORM
+export FREEFORMl
 export LD
 export LINK_NC
 #EOC
