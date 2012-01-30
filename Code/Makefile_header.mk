@@ -87,7 +87,7 @@ FFLAGS += -traceback
 endif
 
 # Look for F90 module files in the $(MOD) directory
-FFLAGS += -I./ -module $(MOD)
+FFLAGS += -module $(MOD)
 
 F90      = ifort $(FFLAGS) $(INC_NC)
 LD       = ifort $(FFLAGS)
@@ -118,7 +118,7 @@ FFLAGS += -traceback
 endif
 
 # Look for F90 module files in the $(MOD) directory
-FFLAGS += -I./ -module $(MOD)
+FFLAGS += -module $(MOD)
 
 F90      = mpif90 $(FFLAGS) $(INC_NC)
 LD       = mpif90 $(FFLAGS)
@@ -144,7 +144,7 @@ FFLAGS += -C
 endif
 
 # Look for F90 module files in the $(MOD) directory
-FFLAGS += -I./ -module $(MOD)
+FFLAGS += -module $(MOD)
 
 F90      = pgf90 $(FFLAGS) $(INC_NC)
 LD       = pgf90 $(FFLAGS)
@@ -207,7 +207,7 @@ FFLAGS += -C
 endif
 
 # Look for F90 module files in the $(MOD) directory
-FFLAGS += -I./ -moddir=$(MOD) -M$(MOD)
+FFLAGS += -moddir=$(MOD) -M$(MOD)
 
 F90      = xlf90_r $(FFLAGS) $(INC_NC)
 LD       = xlf90_r $(FFLAGS)

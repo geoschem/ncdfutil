@@ -1,0 +1,9 @@
+      PROGRAM NC_TEST
+
+      INTEGER :: fId
+
+      CALL DEFINE_NETCDF_FILE( fId )
+
+      CALL WRITE_TO_NETCDF_FILE( fId )
+
+      END PROGRAM NC_TEST

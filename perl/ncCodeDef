@@ -14,9 +14,12 @@
 #\\
 # !USES:
 #
-  require 5.003;        # need this version of Perl or newer
-  use strict 'refs';    # Do not allow symbolic references
-  use strict 'subs';    # Treat all barewords as syntax errors 
+  require 5.003;                        # need this version of Perl or newer
+  use English;                          # Use English language
+  use Carp;                             # Get detailed error messages
+  use strict 'refs';                    # Do not allow symbolic references
+  use strict 'subs';                    # Treat all barewords as syntax errors 
+  use StrTrim qw( &trim &splitLine );   # Get string handling routines
 #
 # !PUBLIC DATA MEMBERS:
 #
@@ -27,88 +30,9 @@
 #
 # !REVISION HISTORY: 
 #  27 Jan 2012 - R. Yantosca - Initial version
-#EOP
-#------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
-#------------------------------------------------------------------------------
-#BOP
-#
-# !IROUTINE: trim
-#
-# !DESCRIPTION:  Routine trim removes leading and trailing whitespace from
-#  a string (analogous to IDL's Strtrim( str, 2 ) command).
-#\\
-#\\
-# !INTERFACE:
-#
-sub trim($) {
-#
-# !CALLING SEQUENCE:
-# $string = &trim( $string );
-#
-# !REMARKS:
-#  Found online at this URL:
-#  http://www.somacon.com/p114.php
-#
-# !REVISION HISTORY:
-#  27 Jan 2012 - R. Yantosca - Initial version
-#EOP
-#------------------------------------------------------------------------------
-#BOC
-
-  # Shift the @_ array 
-  my $string = shift;
-
-  # Remove leading whitespace
-  $string    =~ s/^\s+//;
-
-  # Remove trailing whitespace
-  $string    =~ s/\s+$//;
-
-  # Return
-  return( $string );
-}
-#EOP
-#------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
-#------------------------------------------------------------------------------
-#BOP
-#
-# !IROUTINE: splitLine
-#
-# !DESCRIPTION:  Routine splitLine splits a line on a given delimiter, and
-#  strips white space.  Convenience wrapper for the Perl "split" function.
-#\\
-#\\
-# !INTERFACE:
-#
-sub splitLine($$) {
-#
-# !INPUT PARAMETERS:
-#
-  # Line to be split, and the delimeter character
-  # Don't strip the white from $value if $noSplitVal==1
-  my( $line, $delim ) = @_;
-#
-# !CALLING SEQUENCE:
-# ( $name, $value ) = &splitLine( $line );
-#
-# !REVISION HISTORY:
-#  27 Jan 2012 - R. Yantosca - Initial version
-#EOP
-#------------------------------------------------------------------------------
-#BOC
-#
-# !LOCAL VARIABLES:
-#
-  # Split the line
-  my @subStr = split( $delim, $line );
-  my $name   = &trim( $subStr[0] );
-  my $value  = &trim( $subStr[1] );
- 
-  # Return substrings
-  return( $name, $value );
-}
+#  30 Jan 2012 - R. Yantosca - Now get trim, splitline routines from the
+#                              Perl module "StrTrim.pm" 
+#  30 Jan 2012 - R. Yantosca - Now write ProTeX comment headers
 #EOP
 #------------------------------------------------------------------------------
 #          Harvard University Atmospheric Chemistry Modeling Group            !
@@ -147,21 +71,29 @@ sub readRcFile($) {
   my @lines   = ();
   my $name    = "";
 
-  #----------------------------------------------
-  # Read variable settings from the file
-  #----------------------------------------------
+  #--------------------------------------------------
+  # Read variable settings from the resource file
+  #--------------------------------------------------
   open( I, "<$fileName" ) or die "Cannot open $fileName!\n";
   chomp( @lines = <I> );
   close( I );
 
-  #----------------------------------------------
+  #--------------------------------------------------
   # Write Fortran commands to the output file
-  #----------------------------------------------
+  #--------------------------------------------------
   
-  # Get the name of the output file
+  # Pre-get a few quantities before creating the
+  # output file with the fortran code
   foreach $line ( @lines ) {
+
+    # Name of output file w/ Fortran code
     if ( $line =~ 'Fortran Def File' ) {
       ( $name, $cmdFile ) = &splitLine( $line, '=' );
+    }
+
+    # NetCDF file ID (aka filehandle)
+    if ( $line =~ 'netCDF FileHandle' ) {
+      ( $name, $F_ID ) = &splitLine( $line, '=' );
     }
   }
       
@@ -174,9 +106,9 @@ sub readRcFile($) {
   # Pass thru @lines array again to write 
   &writeFortranCalls( \*O, @lines );
 
-  #----------------------------------------------
+  #--------------------------------------------------
   # Cleanup and quit
-  #----------------------------------------------
+  #--------------------------------------------------
 
   # Close output file
   close( O );
@@ -225,26 +157,60 @@ sub writeFortranVars($@) {
   #-------------------------------------------------------
   # Write USE statements 
   #-------------------------------------------------------
-  $txt  = <<EOF;
-      ! Modules for netCDF write
+  $txt .= <<EOF;
+!EOC
+!------------------------------------------------------------------------------
+!          Harvard University Atmospheric Chemistry Modeling Group            !
+!------------------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: define\_netcdf\_file
+!
+! !DESCRIPTION: Routine to define the variables and attributes of a netCDF
+!  file.  This routine was automatically generated by the Perl scripts in the 
+!  NcdfUtilities/perl directory.
+!\\
+!\\
+! !INTERFACE:
+!
+      SUBROUTINE DEFINE_NETCDF_FILE( $F_ID )
+!
+! !USES:
+!
+      ! Modules for netCDF define
       USE m_netcdf_io_create
       USE m_netcdf_io_define
-      USE m_netcdf_io_write
       USE m_netcdf_io_close
 
       IMPLICIT NONE
-      PRIVATE
 
 \#     include "netcdf.inc"
-
-      !=================================================================
-      ! Variable declarations
-      !=================================================================
+!
+! !OUTPUT PARAMETERS:
+!   
+      INTEGER, INTENT(OUT) :: $F_ID    ! netCDF file ID
+!
+! !REMARKS:
+!  Assumes that you have:
+!  (1) A netCDF library (either v3 or v4) installed on your system
+!  (2) The NcdfUtilities package (from Bob Yantosca) source code
+!                                                                             .
+!  Although this routine was generated automatically, some further
+!  hand-editing may be required (i.e. to  specify the size of parameters, 
+!  and/or to assign values to variables.
+!
+! !REVISION HISTORY:
+!  30 Jan 2012 - R. Yantosca - Initial version
+!EOP
+!------------------------------------------------------------------------------
+!BOC
+!
+! !LOCAL VARIABLES:
+!
 EOF
-  print O "$txt\n";
 
   # Loop thru the LINES array
-  for ( my $i = 0; $i < scalar( @lines ); $i++ ) {
+  for ( my $i=0; $i<scalar( @lines ); $i++ ) {
 
     # Skip separator line
     if ( $lines[$i] eq '#' ) {
@@ -263,9 +229,7 @@ EOF
       
 	# Declare netCDF file and variable ID's
 	if ( $name =~ 'FileHandle' ) { 
-	  $F_ID = $value;
-	  $txt  = "      ! Declare netCDF file ID and variable ID\n";
-	  $txt .= "      INTEGER            :: $F_ID\n";
+	  $txt .= "      ! Declare netCDF variable ID and fill mode\n";
 	  $txt .= "      INTEGER            :: vId\n";
 	  $txt .= "      INTEGER            :: omode\n";
 	}	      
@@ -293,15 +257,21 @@ EOF
   #-------------------------------------------------------
   # OTHER VARIABLES section
   #-------------------------------------------------------
-  $txt .= "\n      ! Variables for netCDF attributes\n";
-  $txt .= "      CHARACTER(LEN=255) :: a_name\n";
-  $txt .= "      CHARACTER(LEN=255) :: a_val\n";
-  $txt .= "\n      ! Arrays for var ID's, starting points, and var sizes\n";
-  $txt .= "      INTEGER            :: var1d(1), st1d(1), ct1d(1)\n";
-  $txt .= "      INTEGER            :: var2d(2), st2d(2), ct2d(2)\n";
-  $txt .= "      INTEGER            :: var3d(3), st3d(3), ct3d(3)\n";
-  $txt .= "      INTEGER            :: var4d(4), st4d(4), ct4d(4)\n";
-  $txt .= "      INTEGER            :: var5d(5), st4d(5), ct4d(5)\n";
+  $txt .= <<EOF2;
+
+      ! Variable and attribute names
+      CHARACTER(LEN=255) :: v_name    ! netCDF variable name 
+      CHARACTER(LEN=255) :: a_name    ! netCDF attribute name
+      CHARACTER(LEN=255) :: a_val     ! netCDF attribute value
+
+      ! Arrays to hold netCDF dimensions 
+      INTEGER            :: var1d(1)
+      INTEGER            :: var2d(2)
+      INTEGER            :: var3d(3)
+      INTEGER            :: var4d(4)
+      INTEGER            :: var5d(5)
+      INTEGER            :: var6d(6)
+EOF2
   print $O "$txt\n";
 
   # Return
@@ -432,6 +402,8 @@ EOF
       ! %%%%% END OF NETCDF DEFINITION SECTION %%%%%
       !=================================================================
       CALL NcEnd_Def( $F_ID );
+
+      END SUBROUTINE DEFINE_NETCDF_FILE
 EOF2
   print $O "$txt\n";
 
@@ -491,6 +463,7 @@ EOF
   }
 
   # Return
+# &handleGlobalAtts(
   return( 0 );
 }
 #EOP
@@ -582,7 +555,8 @@ sub handleDimensions($$) {
   # HERE doc to define Fortran commands
   my $txt = <<EOF;
       ! Define $name dimension
-      CALL NcDef_Dimension( $F_ID, '$name', $value, id_$name )
+      v_name = '$name'
+      CALL NcDef_Dimension( $F_ID, TRIM(v_name), $value, id_$name )
 EOF
 
   # Write to output file     
@@ -700,9 +674,10 @@ EOF
       !--------------------------------
 
       ! Define the $varName variable
-      vId   = vId + 1
+      vId    = vId + 1
       $dimDef
-      CALL NcDef_Variable( $F_ID, '$varName', $NF_TYPE, $nDims, $dimArr, vId )
+      v_name = '$varName'
+      CALL NcDef_Variable( $F_ID, TRIM(v_name), $NF_TYPE, $nDims, $dimArr, vId )
 EOF2
     print $O "$txt\n";
 
