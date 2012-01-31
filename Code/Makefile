@@ -45,12 +45,12 @@
 #==============================================================================
 
 # Define variables
-SHELL   = /bin/sh
-BIN     = ../bin
-DOC     = ../doc
-EXE     = TestNcdfUtilities.x
-LIB     = ../lib
-MOD     = ../mod
+SHELL := /bin/sh
+BIN   := ../bin
+DOC   := ../doc
+EXE   := TestNcdfUtilities.x
+LIB   := ../lib
+MOD   := ../mod
 
 # Include header file.  This returns variables F90, LD, LINK_NC
 # as well as the default Makefile compilation rules for source code files.
@@ -69,11 +69,11 @@ include ./Makefile_header.mk
 #-----------------
 
 # Files for library build (code & objects)
-SRC  = $(wildcard m_*.F90)
-OBJ  = $(SRC:.F90=.o)
+SRC  := $(wildcard m_*.F90)
+OBJ  := $(SRC:.F90=.o)
 
 # Files for standalone test driver (code, object, exe)
-OBJx = $(EXE:.x=.o)
+OBJx := $(EXE:.x=.o)
 
 #-----------------
 # Dependencies

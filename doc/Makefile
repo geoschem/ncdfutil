@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2009/08/04 14:52:05 bmy Exp $
+#EOC
 #------------------------------------------------------------------------------
 #          Harvard University Atmospheric Chemistry Modeling Group            !
 #------------------------------------------------------------------------------
@@ -24,6 +24,7 @@
 # !REVISION HISTORY: 
 #  04 Aug 2009 - R. Yantosca - Initial version
 #  25 Jan 2012 - R. Yantosca - Now add m_netcdf_io_readattr.F90
+#  31 Jan 2012 - R. Yantosca - Now create auto doc for Perl scripts
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -33,14 +34,15 @@
 #==============================================================================
 
 # Define variables
-SHELL   = /bin/sh
-CODEDIR = ../Code
-ROOTDIR = ../
-DOCDIR  = ./
+SHELL   := /bin/sh
+CODEDIR := ../Code
+DOCDIR  := ./
+PERLDIR := ../perl
+ROOTDIR := ../
 
 .PHONY: doc clean
 
-doc: srcdoc makedoc
+doc: srcdoc makedoc perldoc
 
 clean:
 	rm -f *.tex *.ps *.pdf
@@ -50,8 +52,8 @@ clean:
 #==============================================================================
 
 # Files for library build (code & objects)
-SRC1 =                                \
-$(DOCDIR)/intro.txt                   \
+SRC1 :=                               \
+$(DOCDIR)/src.intro                   \
 $(CODEDIR)/m_do_err_out.F90           \
 $(CODEDIR)/m_netcdf_io_checks.F90     \
 $(CODEDIR)/m_netcdf_io_close.F90      \
@@ -66,10 +68,10 @@ $(CODEDIR)/m_netcdf_io_write.F90      \
 $(CODEDIR)/TestNcdfUtilities.F90
 
 # LaTeX etc. files
-TEX1 = NcdfUtilities.tex
-DVI1 = NcdfUtilities.dvi
-PDF1 = NcdfUtilities.pdf
-PS1  = NcdfUtilities.ps
+TEX1 := NcdfUtilities.tex
+DVI1 := NcdfUtilities.dvi
+PDF1 := NcdfUtilities.pdf
+PS1  := NcdfUtilities.ps
 
 srcdoc:
 	rm -f $(TEX1)
@@ -86,18 +88,18 @@ srcdoc:
 #==============================================================================
 
 # Files for library build (code & objects)
-SRC2 =                         \
-$(DOCDIR)/make_intro.txt       \
+SRC2 :=                        \
+$(DOCDIR)/make.intro           \
 $(ROOTDIR)/Makefile            \
 $(CODEDIR)/Makefile            \
 $(CODEDIR)/Makefile_header.mk  \
 $(DOCDIR)/Makefile               
 
 # LaTeX etc. files
-TEX2 = NcdfUtilities_Makefiles.tex
-DVI2 = NcdfUtilities_Makefiles.dvi
-PDF2 = NcdfUtilities_Makefiles.pdf
-PS2  = NcdfUtilities_Makefiles.ps
+TEX2 := NcdfUtilities_Makefiles.tex
+DVI2 := NcdfUtilities_Makefiles.dvi
+PDF2 := NcdfUtilities_Makefiles.pdf
+PS2  := NcdfUtilities_Makefiles.ps
 
 makedoc:
 	rm -f $(TEX2)
@@ -107,6 +109,35 @@ makedoc:
 	latex $(TEX2)
 	dvipdf $(DVI2) $(PDF2)
 	dvips $(DVI2) -o $(PS2)
+	rm -f *.aux *.dvi *.log *.toc
+
+#==============================================================================
+# Make documentation for Perl scripts
+#==============================================================================
+
+# Files for library build (code & objects)
+SRC3 =                       \
+$(DOCDIR)/perl.intro         \
+$(PERLDIR)/StrTrim.pm        \
+$(PERLDIR)/ncCodeDef         \
+$(PERLDIR)/ncCodeWrite       \
+$(PERLDIR)/ncCodeRead        \
+$(PERLDIR)/nc_definitions.rc
+
+# LaTeX etc. files
+TEX3 := NcdfUtilities_perl.tex
+DVI3 := NcdfUtilities_perl.dvi
+PDF3 := NcdfUtilities_perl.pdf
+PS3  := NcdfUtilities_perl.ps
+
+perldoc:
+	rm -f $(TEX3)
+	protex -sfS $(SRC3) > $(TEX3)
+	latex $(TEX3)
+	latex $(TEX3)
+	latex $(TEX3)
+	dvipdf $(DVI3) $(PDF3)
+	dvips $(DVI3) -o $(PS3)
 	rm -f *.aux *.dvi *.log *.toc
 
 #==============================================================================

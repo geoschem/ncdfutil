@@ -1,11 +1,10 @@
-! $Id: intro.txt,v 1.1 2009/08/04 14:52:05 bmy Exp $
 !------------------------------------------------------------------------------
 !          Harvard University Atmospheric Chemistry Modeling Group            !
 !------------------------------------------------------------------------------
 !BOI
-! !TITLE: NcdfUtilities: F90 code for reading/writing to netCDF format
+! !TITLE: NcdfUtilities: Fortran code for reading/writing to netCDF format
 ! !AUTHORS: Bob Yantosca
 ! !AFFILIATION: School of Engineering and Applied Sciences, Harvard University
-! !DATE: August 4, 2009
+! !DATE: 31 Jan 2012
 !EOI
 !------------------------------------------------------------------------------

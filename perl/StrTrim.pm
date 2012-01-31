@@ -8,7 +8,7 @@
 # !MODULE: StrTrim
 #
 # !DESCRIPTION: This Perl package contains routines for splitting a line
-#  into substrings and removing trailing & leading whitespace.  Used by
+#  into substrings and removing trailing and leading whitespace.  Used by
 #  the ncCode* scripts.
 #\\
 #\\
@@ -18,7 +18,7 @@ package StrTrim;
 #
 # !USES:
 #
-  require 5.003;   # need this version of Perl or newer
+  require 5.003;   # Need this version of Perl or newer
   use English;     # Use English language
   use Carp;        # Get detailed error messages
   use strict;      # Force explicit variable declarations (like IMPLICIT NONE)
@@ -36,7 +36,6 @@ package StrTrim;
 #EOP
 #------------------------------------------------------------------------------
 #BOC
-
 BEGIN {
 
   #=========================================================================
@@ -98,7 +97,7 @@ sub trim($) {
 #
 # !IROUTINE: splitLine
 #
-# !DESCRIPTION:  Routine splitLine splits a line on a given delimiter, and
+# !DESCRIPTION: Routine splitLine splits a line on a given delimiter, and
 #  strips white space.  Convenience wrapper for the Perl "split" function.
 #\\
 #\\

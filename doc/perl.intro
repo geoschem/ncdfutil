@@ -1,0 +1,10 @@
+#------------------------------------------------------------------------------
+#          Harvard University Atmospheric Chemistry Modeling Group            !
+#------------------------------------------------------------------------------
+#BOI
+# !TITLE: Perl scripts for automatically generating Fortran subroutines that use NcdfUtility library methods
+# !AUTHORS: Bob Yantosca
+# !AFFILIATION: School of Engineering and Applied Sciences, Harvard University
+# !DATE: 31 Jan 2012
+#EOI
+#------------------------------------------------------------------------------
