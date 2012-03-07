@@ -73,7 +73,7 @@ ifeq ($(COMPILER),ifort)
 ifdef DEBUG
 FFLAGS = -cpp -w -noalign -convert big_endian -g -traceback 
 else
-FFLAGS = -cpp -w -O2 -auto -noalign -convert big_endian -openmp
+FFLAGS = -cpp -w -O2 -auto -noalign -convert big_endian -openmp -mcmodel=medium
 endif
 
 # Add option for "array out of bounds" checking
