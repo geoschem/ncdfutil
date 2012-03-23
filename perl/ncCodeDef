@@ -428,7 +428,7 @@ EOF
       !=================================================================
       ! %%%%% END OF NETCDF DEFINITION SECTION %%%%%
       !=================================================================
-      CALL NcEnd_Def( $F_ID );
+      CALL NcEnd_Def( $F_ID )
 
       END SUBROUTINE DEFINE_NETCDF_FILE
 EOF2
