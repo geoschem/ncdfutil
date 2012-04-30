@@ -13,23 +13,27 @@
 # To build the program, call "make" with the following syntax:
 #
 #   make TARGET [ OPTIONAL-FLAGS ]
-#
-# To display a complete list of options, type "make help".
-#
-# Makefile uses the following variables:
-#
-# Variable   Description
-# --------   -----------
-# BIN        Specifies the directory where the executable will be sent
-# DOC        Specifies the directory where documentation will be built
-# EXE        Specifies the name of the executable file
-# F90        Contains the default Fortran compilation commands
-# LD         Contains the command to link to libraries & make executable
-# LIB        Specifies the directory where the libNcUtils.a files will be sent
-# LINK_NC    Contains the comand to link to the HDF library
-# SHELL      Specifies the shell for "make" to use (usually SHELL=/bin/sh)
-#
-# F90, LD, LINK_NC are included from "Makefile_header.mk"
+#                                                                             .
+#  To display a complete list of options, type "make help".
+#                                                                             .
+#  NOTE: The NcdfUtilities assumes that you are linking to a netCDF-4 
+#  library by default.  If you are linking to a netCDF-3 library build,
+#  then compile with the flag NETCDF3=yes.
+#                                                                             .
+#  Makefile uses the following variables:
+#                                                                             .
+#  Variable   Description
+#  --------   -----------
+#  BIN        Specifies the directory where the executable will be sent
+#  DOC        Specifies the directory where documentation will be built
+#  EXE        Specifies the name of the executable file
+#  F90        Contains the default Fortran compilation commands
+#  LD         Contains the command to link to libraries & make executable
+#  LIB        Specifies the directory where the libNcUtils.a files will be sent
+#  LINK_NC    Contains the comand to link to the HDF library
+#  SHELL      Specifies the shell for "make" to use (usually SHELL=/bin/sh)
+#                                                                             .
+#  F90, LD, FREEFORM, and LINK_NC are included from "Makefile_header.mk"
 #
 # !REVISION HISTORY: 
 #  04 Aug 2009 - R. Yantosca - Initial version
@@ -173,8 +177,11 @@ help:
 	@echo ''
 	@echo 'OPTIONAL-FLAGS may be:'
 	@echo 'COMPILER=___   Options: ifort pgi sun xlf (default is ifort)'
+	@echo 'NETCDF3=yes    Specifies that we are using a netCDF-3 build'
+	@echo '                (default is to assume netCDF-4)'
 	@echo 'DEBUG=yes      Compiles GEOS-Chem for use w/ a debugger'
 	@echo 'BOUNDS=yes     Turns on subscript-array checking (for debugging purposes)'
 	@echo 'TRACEBACK=yes  Compiles with -traceback flag (ifort only)'
+
 #
 #EOC
