@@ -77,7 +77,7 @@ LINK_NC   += $(shell $(BIN_NETCDF)/nc-config --libs)
 LINK_NC   := $(filter -l%,$(LINK_NC))
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%% NOTE TO GEOS-CHEM USERS: If you do not have netCDF-4.2 installed
+#%%%% NOTE TO NcdfUtilities USERS: If you do not have netCDF-4.2 installed
 #%%%% Then you can add/modify the linking sequence here.  (This sequence
 #%%%% is a guess, but is probably good enough for other netCDF builds.)
 ifeq ($(LINK_NC),) 
