@@ -27,11 +27,9 @@
 #                                                                             .
 #  Variable     Description
 #  ----------   -----------
-#  INC_NETCDF   Specifies the netCDF include path (for netCDF-3 or netCDF-4)
-#  LIB_NETCDF   Specifies the netCDF library path (for netCDF-3 or netCDF-4)
-#  INC_HDF5     Specifies the HDF-5  library path (only needed for netCDF-4)
-#  LIB_HDF5     Specifies the HDF-5  include path (only needed for netCDF-4)
-#  LIB_ZLIB     Specifies the ZLIB   include path (only needed for netCDF-4)
+#  BIN_NETCDF   Specifies the path for netCDF etc. executables
+#  INC_NETCDF   Specifies the path for netCDF etc. include files & modules
+#  LIB_NETCDF   Specifies the path for netCDF etc. libraries
 #                                                                             .
 #  The following variables are exported to the main-level Makefile:
 #                                                                             .
@@ -51,7 +49,11 @@
 #  30 Jan 2012 - R. Yantosca - Now create/read modules in the $MOD directory
 #  30 Apr 2012 - R. Yantosca - Now set include & link paths 
 #  30 Apr 2012 - R. Yantosca - Now use -mcmodel=medium option for IFORT, PGI
-#  30 Apr 2012 - R. Yantosca - 
+#  11 May 2012 - R. Yantosca - Now attempt to use nf-config, nc-config to
+#                              obtain the library linking sequence.  This will
+#                              make the Makefile much more portable
+#  11 May 2012 - R. Yantosca - Now use INC_NETCDF, BIN_NETCDF, LIB_NETCDF
+#                              env variables to specify directory paths 
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -65,19 +67,26 @@ ifndef COMPILER
 COMPILER := ifort
 endif
 
-# Pick the include & library link paths depending on whether we are using a 
-# build of netCDF-3 or netCDF-4.  netCDF-4 also requires installation of the
-# HDF5 and ZLIB libraries.  
-ifeq ($(NETCDF3),yes)
-INC_NC  := -I$(INC_NETCDF)
-LINK_NC := -L$(LIB_NETCDF) -lnetcdf
-else
-INC_NC  := -I$(INC_NETCDF) -I$(INC_HDF5)
-LINK_NC := -L$(LIB_NETCDF) -lnetcdf \
-           -L$(LIB_HDF5) -lhdf5_hl \
-           -L$(LIB_HDF5) -lhdf5 \
-           -L$(LIB_ZLIB) -lz
+# Library include path
+INC_NC    := -I$(INC_NETCDF)
+
+# Library link path: first try to get the list of proper linking flags
+# for this build of netCDF with nf-config and nc-config. 
+LINK_NC   := $(shell $(BIN_NETCDF)/nf-config --flibs)
+LINK_NC   += $(shell $(BIN_NETCDF)/nc-config --libs)
+LINK_NC   := $(filter -l%,$(LINK_NC))
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%% NOTE TO GEOS-CHEM USERS: If you do not have netCDF-4.2 installed
+#%%%% Then you can add/modify the linking sequence here.  (This sequence
+#%%%% is a guess, but is probably good enough for other netCDF builds.)
+ifeq ($(LINK_NC),) 
+LINK_NC   := -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -lz
 endif
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# Prepend the library directory path to the linking sequence
+LINK_NC   := -L$(LIB_NETCDF) $(LINK_NC)
 
 #==============================================================================
 # IFORT compilation options (default)
