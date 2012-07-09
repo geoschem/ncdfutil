@@ -252,7 +252,7 @@ endif
 # Export global variables so that the main Makefile will see these
 #==============================================================================
 export F90
-export FREEFORMl
+export FREEFORM
 export LD
 export LINK_NC
 #EOC
