@@ -48,6 +48,7 @@
 #  31 Jan 2012 - R. Yantosca - Minor edits for consistency
 #  07 Mar 2012 - R. Yantosca - Minor fix, ignore comment lines
 #  26 Mar 2012 - R. Yantosca - Now echo info about the file I/O to stdout
+#  21 Aug 2012 - R. Yantosca - Removed extraneous white space
 #EOP
 #------------------------------------------------------------------------------
 #          Harvard University Atmospheric Chemistry Modeling Group            !
@@ -96,7 +97,7 @@ sub readRcFile($) {
   #--------------------------------------------------
   # Write Fortran commands to the output file
   #--------------------------------------------------
-  
+
   # Pre-get a few quantities before creating the
   # output file with the fortran code
   foreach $line ( @lines ) {
@@ -115,7 +116,7 @@ sub readRcFile($) {
       }
     }
   }
-      
+
   # Open the file that will ho
   open( O, ">$cmdFile" ) or die "Cannot open $cmdFile\n";
 
@@ -225,7 +226,7 @@ sub writeFortranVars($@) {
 !                                                                             .
 !  Although this routine was generated automatically, some further
 !  hand-editing may be required (i.e. to  specify the size of parameters, 
-!  and/or to assign values to variables.  Also, you can decide how to handle
+!  assign values to variables, etc).  Also, you can decide how to handle
 !  the variable attributes (or delete calls for reading attributes that you
 !  do not need).
 !
@@ -296,7 +297,7 @@ EOF
 	    # Find the variable type and variable dimension(s)
 	    ( $varType, $varDim ) = &splitLine( $value, '::' );
 	    if ( $varType =~ 'REAL' ) { $varType = "$varType "; }
-	    
+
 	    # Get dimension information
 	    @dims = split( ',', $varDim );
 	    $nDims = scalar( @dims );
@@ -311,14 +312,14 @@ EOF
 		  $dimDef .= "$val";
 		  if ( $i < $nDims-1 ) { $dimDef .= ","; }
 		}
-	      }	
-	    }			
+	      }
+	    }
 	    $dimDef .= ")";
 
 	    # Definition string
 	    $txt .= "      $varType            :: $name$dimDef\n";
-	  }			
-	}		      
+	  }
+	}
       }
     }
 
@@ -403,7 +404,7 @@ sub writeFortranCalls($@) {
 
   # Loop thru each line in the file
   for ( my $i = 0; $i < scalar( @lines ); $i++ ) {
-    				
+
     # Skip separator line
     if ( $lines[$i] eq '#' ) {
       # Do nothing
@@ -422,7 +423,7 @@ sub writeFortranCalls($@) {
 	  ( $name, $value ) = &splitLine( $lines[$i], '=' );
 
 	  # Full path name of file to read
-	  $ncPath = $value;    
+	  $ncPath = $value;
 
 	  # Split path into filename & directory parts
 	  ( $ncFile, $ncDir ) = &extractFile( $ncPath );
@@ -456,7 +457,7 @@ EOF
 
       # Write fortran calls to define variables
       while ( $lines[++$i] ne '' ) {
-	if ( !( $lines[$i] =~ '#' ) ) { 
+	if ( !( $lines[$i] =~ '#' ) ) {
 
 	  # Split the line on the equals sign
 	  ( $name, $value ) = &splitLine( $lines[$i], '=' );
@@ -575,8 +576,8 @@ EOF4
 !EOC
 EOF5
 
-  # Write Fortran cmds to file  
-  print $O "$txt\n";	      
+  # Write Fortran cmds to file
+  print $O "$txt\n";
 
   # Return 
   return( 0 );

@@ -34,6 +34,7 @@ package StrTrim;
 # !REVISION HISTORY: 
 #  30 Jan 2012 - R. Yantosca - Initial version
 #  26 Mar 2012 - R. Yantosca - Add function &extractFile
+#  21 Aug 2012 - R. Yantosca - Removed extraneous white space
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -127,7 +128,7 @@ sub splitLine($$) {
   my @subStr = split( $delim, $line );
   my $name   = &trim( $subStr[0] );
   my $value  = &trim( $subStr[1] );
- 
+
   # Return substrings
   return( $name, $value );
 }
@@ -173,7 +174,7 @@ sub extractFile($) {
   while ( ( $pos = index( $path, '/', $pos ) ) > -1 ) {
     $lastPos = $pos;
     $pos++;
-  }				
+  }
 
   # Directory part of the path
   $dir  = substr( $path, 0, $lastPos+1 );

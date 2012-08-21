@@ -20,8 +20,8 @@
   use Carp;                             # Get detailed error messages
   use strict 'refs';                    # Do not allow symbolic references
   use strict 'subs';                    # Treat all barewords as syntax errors 
-  use StrTrim qw( &trim 
-                  &splitLine 
+  use StrTrim qw( &trim
+                  &splitLine
                   &extractFile );       # Get string handling routines
 #
 # !PRIVATE MEMBER FUNCTIONS:
@@ -53,6 +53,7 @@
 #  30 Jan 2012 - R. Yantosca - Now write ProTeX comment headers
 #  31 Jan 2012 - R. Yantosca - Minor edits for consistency
 #  07 Mar 2012 - R. Yantosca - Minor fix, ignore comment lines
+#  21 Aug 2012 - R. Yantosca - Removed extraneous white space
 #EOP
 #------------------------------------------------------------------------------
 #          Harvard University Atmospheric Chemistry Modeling Group            !
@@ -102,7 +103,7 @@ sub readRcFile($) {
   #--------------------------------------------------
   # Write Fortran commands to the output file
   #--------------------------------------------------
-  
+
   # Pre-get a few quantities before creating the
   # output file with the fortran code
   foreach $line ( @lines ) {
@@ -119,9 +120,9 @@ sub readRcFile($) {
       if ( $line =~ 'netCDF FileHandle' ) {
 	( $name, $F_ID ) = &splitLine( $line, '=' );
       }
-    }				
+    }
   }
-      
+
   # Open the file that will ho
   open( O, ">$cmdFile" ) or die "Cannot open $cmdFile\n";
 
@@ -214,7 +215,7 @@ sub writeFortranVars($@) {
 \#     include "netcdf.inc"
 !
 ! !OUTPUT PARAMETERS:
-!   
+!
       INTEGER, INTENT(OUT) :: $F_ID    ! netCDF file ID
 !
 ! !REMARKS:
@@ -247,19 +248,19 @@ EOF
     # FILENAME section
     #----------------------------------------------------
     elsif ( $lines[$i] =~ '!FILENAME:' ) {
-      		
+
       while ( $lines[++$i] ne '' ) {
-		
+
 	# Split the line on the equals sign
 	( $name, $value ) = &splitLine( $lines[$i], '=' );
-      
+
 	# Declare netCDF file and variable ID's
 	if ( $name =~ 'FileHandle' ) { 
 	  $txt .= "      ! Declare netCDF variable ID and fill mode\n";
 	  $txt .= "      INTEGER            :: vId\n";
 	  $txt .= "      INTEGER            :: omode\n";
-	}	      
-      }			       
+	}
+      }
 
     #----------------------------------------------------
     # DIMENSIONS section
@@ -356,7 +357,7 @@ EOF
 
   # Loop thru each line in the file
   for ( my $i = 0; $i < scalar( @lines ); $i++ ) {
-    				
+
     # Skip separator line
     if ( $lines[$i] eq '#' ) {
       # Do nothing
@@ -373,7 +374,7 @@ EOF
 	}
       }
     }
-    
+
     #----------------------------------------------------
     # GLOBAL ATTRIBUTES section
     #----------------------------------------------------
@@ -403,7 +404,7 @@ EOF
       $txt .= "      ! DIMENSIONS\n";
       $txt .= "      !--------------------------------\n";
       print $O "$txt\n";
-				
+
       # Write Fortran calls to define dimensions
       while ( $lines[++$i] ne '' ) {
 	if ( !( $lines[$i] =~ '#' ) ) { 
@@ -489,12 +490,12 @@ sub handleFileName($$) {
 
   if ( $name =~ 'FileHandle' ) { 
     return(0);
-  
+
   } elsif ( $name =~ 'FileName' ) {
 
     # Full path name of the netCDF file
     my $ncPath = $value;
-    
+
     # Split path into filename and diretory parts
     ( $ncFile, $ncDir ) = &extractFile( $ncPath );
 
@@ -511,7 +512,7 @@ sub handleFileName($$) {
       WRITE( 6, 120 ) TRIM( nc_dir  )
 
       ! Turn filling off
-      CALL NcSetFill( $F_ID, NF_NOFILL, omode )     
+      CALL NcSetFill( $F_ID, NF_NOFILL, omode )
 EOF
 
      # Write to file
@@ -680,7 +681,7 @@ sub handleVariables($$) {
 
     # Attribute value
     $attValue = $value;
- 
+
     # Write commands to disk
     $txt = <<EOF;
       ! Define the "$varName:$attName" attribute
@@ -697,8 +698,8 @@ EOF
   else {
 
     # Get the variable name
-    $varName = $name; 
-   
+    $varName = $name;
+
     # Find the variable type and variable dimension(s)
     ( $varType, $varDim ) = &splitLine( $value, '::' );
     $varType =~ s/\*//g;
@@ -721,7 +722,7 @@ EOF
     for ( my $i=0; $i<$nDims; $i++ ) { 
       $dimDef .= "id_$dims[$i]";
       if ( $i < $nDims-1 ) { $dimDef .= ", "; }
-    }	
+    }
     $dimDef .= " /)";
 
     # Write commands to disk

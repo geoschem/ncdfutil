@@ -51,6 +51,7 @@
 #  31 Jan 2012 - R. Yantosca - Minor edits for consistency
 #  07 Mar 2012 - R. Yantosca - Minor fix, ignore comment lines
 #  26 Mar 2012 - R. Yantosca - Now echo info about file I/O to stdout
+#  21 Aug 2012 - R. Yantosca - Removed extraneous white space
 #EOP
 #------------------------------------------------------------------------------
 #          Harvard University Atmospheric Chemistry Modeling Group            !
@@ -99,7 +100,7 @@ sub readRcFile($) {
   #----------------------------------------------
   # Write Fortran commands to the output file
   #----------------------------------------------
-  
+
   # Parse the file first to pre-get a few quantities
   foreach $line ( @lines ) {
 
@@ -117,7 +118,7 @@ sub readRcFile($) {
       }
     }
   }
-      
+
   # Open the file that will ho
   open( O, ">$cmdFile" ) or die "Cannot open output file $cmdFile!\n";
 
@@ -283,7 +284,7 @@ EOF
 	    # Find the variable type and variable dimension(s)
 	    ( $varType, $varDim ) = &splitLine( $value, '::' );
 	    if ( $varType =~ 'REAL' ) { $varType = "$varType "; }
-	    
+
 	    # Get dimension information
 	    @dims = split( ',', $varDim );
 	    $nDims = scalar( @dims );
@@ -298,14 +299,14 @@ EOF
 		  $dimDef .= "$val";
 		  if ( $i < $nDims-1 ) { $dimDef .= ","; }
 		}
-	      }	
-	    }			
+	      }
+	    }
 	    $dimDef .= ")";
 
 	    # Definition string
 	    $txt .= "      $varType            :: $name$dimDef\n";
-	  }			
-	}		      
+	  }
+	}
       }
     }
   }
@@ -317,7 +318,7 @@ EOF
 
       ! Character strings
       CHARACTER(LEN=255) :: v_name             ! netCDF variable name
-      
+
       ! Arrays for netCDF start and count values
       INTEGER            :: st1d(1), ct1d(1)   ! For 1D arrays
       INTEGER            :: st2d(2), ct2d(2)   ! For 2D arrays
@@ -393,7 +394,7 @@ EOF
 
   # Loop thru each line in the file
   for ( my $i = 0; $i < scalar( @lines ); $i++ ) {
-    				
+
     # Skip separator line
     if ( $lines[$i] eq '#' ) {
       # Do nothing
@@ -424,7 +425,7 @@ EOF
 	    # Create the start array
 	    $start = "st$nDims"."d";
 	    $txt  .= "      ! Write $name to netCDF file\n";
-	    
+
 	    $txt  .= "      $start   = (/ ";
 	    for ( my $j=0; $j<$nDims; $j++ ) { 
 	      $txt .= "1";
@@ -452,7 +453,7 @@ EOF
       WRITE( 6, 130  ) TRIM(v_name)
 
 EOF2
-	  }	  
+	  }
 	}
       }
     }
