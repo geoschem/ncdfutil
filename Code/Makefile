@@ -43,6 +43,7 @@
 #  30 Jan 2012 - R. Yantosca - Now create/read modules in the ../mod directory
 #  10 Jul 2014 - R. Yantosca - Now compile m_netcdf_handle_error.F90 and
 #                              ncdf_mod.F90 (to facilitate HEMCO + other pkgs)
+#  10 Jul 2014 - R. Yantosca - Now compile julday_mod.F and charpak_mod.F
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -75,9 +76,12 @@ include ./Makefile_header.mk
 # Objects
 #-----------------
 
-# Files for library build (code & objects)
-SRC  := $(wildcard m_*.F90)
-OBJ  := $(SRC:.F90=.o)
+# List of source files
+SRC := $(wildcard *.F) $(wildcard *.F90)
+
+# Replace .f and .f90 extensions with *.o
+TMP := $(SRC:.F=.o)
+OBJ := $(TMP:.F90=.o)
 
 # Files for standalone test driver (code, object, exe)
 OBJx := $(EXE:.x=.o)
@@ -85,6 +89,10 @@ OBJx := $(EXE:.x=.o)
 #-----------------
 # Dependencies
 #-----------------
+charpak_mod.o            : charpak_mod.F
+
+julday_mod.o             : julday_mod.F
+
 m_do_err_out.o           : m_do_err_out.F90
 
 m_netcdf_io_close.o      : m_netcdf_io_close.F90        \
@@ -124,6 +132,8 @@ ncdf_mod.o               : ncdf_mod.F90                 \
                            m_netcdf_io_define.o         \
                            m_netcdf_io_write.o          \
                            m_netcdf_io_checks.o         \
+                           julday_mod.o                 \
+                           charpak_mod.o
 
 TestNcdfUtilities.o      : TestNcdfUtilities.F90        \
                            m_do_err_out.o               \
