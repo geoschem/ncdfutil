@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #
@@ -51,7 +52,8 @@
 #  21 Aug 2012 - R. Yantosca - Removed extraneous white space
 #EOP
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #
@@ -138,7 +140,8 @@ sub readRcFile($) {
 }
 #EOC
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #
@@ -191,7 +194,8 @@ sub writeFortranVars($@) {
   $txt .= <<EOF;
 !EOC
 !------------------------------------------------------------------------------
-!          Harvard University Atmospheric Chemistry Modeling Group            !
+!       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+!                      and NASA/GSFC, SIVO, Code 610.3                        !
 !------------------------------------------------------------------------------
 !BOP
 !
@@ -353,7 +357,8 @@ EOF2
 }
 #EOC
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #
@@ -584,7 +589,8 @@ EOF5
 }
 #EOC
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #

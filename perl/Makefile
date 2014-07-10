@@ -1,6 +1,7 @@
 #EOC
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #

@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.1 2009/08/04 14:52:04 bmy Exp $
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #

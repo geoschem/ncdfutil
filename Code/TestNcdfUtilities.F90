@@ -1,5 +1,6 @@
 !------------------------------------------------------------------------------
-!          Harvard University Atmospheric Chemistry Modeling Group            !
+!       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+!                      and NASA/GSFC, SIVO, Code 610.3                        !
 !------------------------------------------------------------------------------
 !BOP
 !
@@ -63,6 +64,7 @@ PROGRAM TestNcdfUtilities
 !  24 Jan 2012 - R. Yantosca - Modified to write COARDS-compliant output
 !  31 Jan 2012 - R. Yantosca - Bug fix in error checks for attributes
 !  14 Jun 2012 - R. Yantosca - Now tests 2D character read/write
+!  10 Jul 2014 - R. Yantosca - Cosmetic changes in ProTeX headers
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -129,7 +131,8 @@ CONTAINS
 
 !EOC
 !------------------------------------------------------------------------------
-!          Harvard University Atmospheric Chemistry Modeling Group            !
+!       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+!                      and NASA/GSFC, SIVO, Code 610.3                        !
 !------------------------------------------------------------------------------
 !BOP
 !
@@ -381,7 +384,8 @@ CONTAINS
   END SUBROUTINE TestNcdfCreate
 !EOC
 !------------------------------------------------------------------------------
-!          Harvard University Atmospheric Chemistry Modeling Group            !
+!       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+!                      and NASA/GSFC, SIVO, Code 610.3                        !
 !------------------------------------------------------------------------------
 !BOP
 !
@@ -659,7 +663,6 @@ CONTAINS
     ENDIF
     CALL Check( 'Reading DESC:long_name back from netCDF file', rc, pCt, tCt )
 
-
     !=========================================================================
     ! Read global attributes
     !=========================================================================
@@ -708,7 +711,8 @@ CONTAINS
   END SUBROUTINE TestNcdfRead
 !EOC
 !------------------------------------------------------------------------------
-!          Harvard University Atmospheric Chemistry Modeling Group            !
+!       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+!                      and NASA/GSFC, SIVO, Code 610.3                        !
 !------------------------------------------------------------------------------
 !BOP
 !
@@ -757,6 +761,5 @@ CONTAINS
 
   END SUBROUTINE Check
 !EOC
-
 END PROGRAM TestNcdfUtilities
 

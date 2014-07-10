@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #
@@ -52,7 +53,8 @@ BEGIN {
 }
 #EOC
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #
@@ -93,7 +95,8 @@ sub trim($) {
 }
 #EOP
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #
@@ -134,7 +137,8 @@ sub splitLine($$) {
 }
 #EOP
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #

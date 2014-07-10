@@ -1,6 +1,7 @@
 #EOC
 #------------------------------------------------------------------------------
-#          Harvard University Atmospheric Chemistry Modeling Group            !
+#       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
+#                      and NASA/GSFC, SIVO, Code 610.3                        !
 #------------------------------------------------------------------------------
 #BOP
 #
@@ -40,6 +41,8 @@
 #  24 Jan 2012 - R. Yantosca - Now explicitly list all dependencies
 #  25 Jan 2012 - R. Yantosca - Added new module m_netcdf_io_readattr.F90
 #  30 Jan 2012 - R. Yantosca - Now create/read modules in the ../mod directory
+#  10 Jul 2014 - R. Yantosca - Now compile m_netcdf_handle_error.F90 and
+#                              ncdf_mod.F90 (to facilitate HEMCO + other pkgs)
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -110,6 +113,17 @@ m_netcdf_io_readattr.o   : m_netcdf_io_readattr.F90     \
 
 m_netcdf_io_write.o      : m_netcdf_io_write.F90        \
                            m_do_err_out.o
+
+ncdf_mod.o               : ncdf_mod.F90                 \
+                           m_netcdf_io_open.o           \
+                           m_netcdf_io_get_dimlen.o     \
+                           m_netcdf_io_read.o           \
+                           m_netcdf_io_readattr.o       \
+                           m_netcdf_io_close.o          \
+                           m_netcdf_io_create.o         \
+                           m_netcdf_io_define.o         \
+                           m_netcdf_io_write.o          \
+                           m_netcdf_io_checks.o         \
 
 TestNcdfUtilities.o      : TestNcdfUtilities.F90        \
                            m_do_err_out.o               \
