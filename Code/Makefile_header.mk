@@ -31,6 +31,9 @@
 #  BIN_NETCDF   Specifies the path for netCDF etc. executables
 #  INC_NETCDF   Specifies the path for netCDF etc. include files & modules
 #  LIB_NETCDF   Specifies the path for netCDF etc. libraries
+#  BIN_HDF5     Specifies the path for HDF5   etc. executables
+#  INC_HDF5     Specifies the path for HDF5   etc. include files & modules
+#  LIB_HDF5     Specifies the path for HDF5   etc. libraries
 #                                                                             .
 #  The following variables are exported to the main-level Makefile:
 #                                                                             .
@@ -40,6 +43,9 @@
 #  FREEFORM     Contains the command to force F90 "free format" compilation
 #  LD           Contains the command to link to libraries & make executable
 #  LINK_NC      Specifies the command to link to the netCDF libraries
+#  LINK_HDF5    Specifies the command to link to the HDF5   libraries
+#                                                                             .
+#  NOTE: The HDF5 library is only required if you are using netCDF-4.
 #
 # !REVISION HISTORY: 
 #  04 Aug 2009 - R. Yantosca - Initial version
@@ -54,7 +60,9 @@
 #                              obtain the library linking sequence.  This will
 #                              make the Makefile much more portable
 #  11 May 2012 - R. Yantosca - Now use INC_NETCDF, BIN_NETCDF, LIB_NETCDF
-#                              env variables to specify directory paths 
+#                              env variables to specify directory paths
+#  18 Jul 2014 - R. Yantosca - Now use INC_HDF5, BIN_HDF5, LIB_HDF5
+#                              env variables to specify directory paths
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -69,7 +77,7 @@ COMPILER := ifort
 endif
 
 # Library include path
-INC_NC    := -I$(INC_NETCDF)
+INC_NC    := -I$(INC_NETCDF) -I$(INC_HDF5)
 
 # Library link path: first try to get the list of proper linking flags
 # for this build of netCDF with nf-config and nc-config. 
@@ -87,7 +95,7 @@ endif
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # Prepend the library directory path to the linking sequence
-LINK_NC   := -L$(LIB_NETCDF) $(LINK_NC)
+LINK_NC   := -L$(LIB_NETCDF) -L$(LIB_HDF5) $(LINK_NC)
 
 #==============================================================================
 # IFORT compilation options (default)
