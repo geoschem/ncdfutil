@@ -63,6 +63,7 @@
 #                              env variables to specify directory paths
 #  18 Jul 2014 - R. Yantosca - Now use INC_HDF5, BIN_HDF5, LIB_HDF5
 #                              env variables to specify directory paths
+#   9 Nov 2015 - R. Yantosca - Now set COMPILER=mpifort when MPI=yes
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -71,9 +72,15 @@
 # Initialization
 #==============================================================================
 
-# Make ifort the default compiler
+# If MPI=yes, then the compiler should be mpifort
+REGEXP :=(^[Yy]|^[Yy][Ee][Ss])
+ifeq ($(shell [[ "$(MPI)" =~ $(REGEXP) ]] && echo true),true)
+ COMPILER :=mpifort
+endif
+
+# Otherwise, make ifort the default compiler
 ifndef COMPILER
-COMPILER := ifort
+ COMPILER := ifort
 endif
 
 # Library include path
@@ -121,7 +128,6 @@ endif
 
 # Look for F90 module files in the $(MOD) directory
 FFLAGS += -module $(MOD)
-
 F90      = ifort $(FFLAGS) $(INC_NC)
 LD       = ifort $(FFLAGS)
 FREEFORM = -free
@@ -131,7 +137,7 @@ endif
 #==============================================================================
 # MPIF90 compilation options
 #==============================================================================
-ifeq ($(COMPILER),mpif90) 
+ifeq ($(COMPILER),mpifort) 
 
 # Pick correct options for debug run or regular run 
 ifdef DEBUG
@@ -153,8 +159,8 @@ endif
 # Look for F90 module files in the $(MOD) directory
 FFLAGS += -module $(MOD)
 
-F90      = mpif90 $(FFLAGS) $(INC_NC)
-LD       = mpif90 $(FFLAGS)
+F90      = mpifort $(FFLAGS) $(INC_NC)
+LD       = mpifort $(FFLAGS)
 FREEFORM = -free
 
 endif
