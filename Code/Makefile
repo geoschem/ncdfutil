@@ -161,7 +161,7 @@ lib: $(OBJ)
 
 check: $(OBJx)
 	$(LD) $(OBJx) -L$(LIB) -lNcUtils $(LINK_NC) -o $(EXE)
-	$(EXE) 
+	./$(EXE) 
 
 doc:
 	$(MAKE) -C $(DOC) doc
