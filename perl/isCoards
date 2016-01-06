@@ -107,6 +107,7 @@ sub isMonotonic($) {
 #
 # !REVISION HISTORY:
 #  05 Jan 2016 - R. Yantosca - Initial version
+#  06 Jan 2016 - R. Yantosca - Bug fix: return string value if not monotonic
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -140,7 +141,7 @@ sub isMonotonic($) {
   
     # Make sure that the difference is going in the same direction
     # as the rest of the index array.  If not, then exit with failure.
-    if ( !( $diff>0 == $direction>0 ) ) { return( -1 ); }
+    if ( !( $diff>0 == $direction>0 ) ) { return( "is not monotonic" ); }
   }
 
   # If we have gotten this far, then the list of values is either
@@ -172,6 +173,7 @@ sub analyzeTime($) {
 # !REVISION HISTORY:
 #  23 Dec 2015 - R. Yantosca - Initial version
 #  06 Jan 2016 - R. Yantosca - Add checks for null values
+#  06 Jan 2016 - R. Yantosca - Bug fix: also flag non-monotonic values
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -196,7 +198,7 @@ sub analyzeTime($) {
 
   # %%%%% Check if times are monotonic
   $value = &isMonotonic( $times );
-  if ( $value eq "has repeat values" ) {
+  if ( $value eq "has repeat values" || $value eq "is not monotonic" ) {
     $msg  = qq/$sep $var $value\n/;
     @BAD  = ( @BAD,  $msg );
   } else {
@@ -291,6 +293,7 @@ sub analyzeLev($) {
 # !REVISION HISTORY:
 #  06 Jan 2015 - R. Yantosca - Initial version
 #  06 Jan 2016 - R. Yantosca - Add checks for null values
+#  06 Jan 2016 - R. Yantosca - Bug fix: also flag non-monotonic values
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -311,7 +314,7 @@ sub analyzeLev($) {
 
   # %%%%% Check if levels are monotonic
   $value = &isMonotonic( $levels );
-  if ( $value eq "has repeat values" ) {
+  if ( $value eq "has repeat values" || $value eq "is not monotonic" ) {
     $msg  = qq/$sep $var $value\n/;
     @BAD  = ( @BAD,  $msg );
   } else {
@@ -398,6 +401,7 @@ sub analyzeLat($) {
 # !REVISION HISTORY:
 #  06 Jan 2015 - R. Yantosca - Initial version
 #  06 Jan 2016 - R. Yantosca - Add checks for null values
+#  06 Jan 2016 - R. Yantosca - Bug fix: also flag non-monotonic values
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -418,7 +422,7 @@ sub analyzeLat($) {
 
   # %%%%% Check if latitudes are monotonic
   $value = &isMonotonic( $latitudes );
-  if ( $value eq "has repeat values" ) {
+  if ( $value eq "has repeat values" || $value eq "is not monotonic" ) {
     $msg  = qq/$sep $var $value\n/;
     @BAD  = ( @BAD,  $msg );
   } else {
@@ -492,6 +496,8 @@ sub analyzeLon($) {
 #
 # !REVISION HISTORY:
 #  06 Jan 2015 - R. Yantosca - Initial version
+#  06 Jan 2016 - R. Yantosca - Add checks for null values
+#  06 Jan 2016 - R. Yantosca - Bug fix: also flag non-monotonic values
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -512,7 +518,7 @@ sub analyzeLon($) {
 
   # %%%%% Check if latitudes are monotonic
   $value = &isMonotonic( $longitudes );
-  if ( $value eq "has repeat values" ) {
+  if ( $value eq "has repeat values" || $value eq "is not monotonic" ) {
     $msg  = qq/$sep $var $value\n/;
     @BAD  = ( @BAD,  $msg );
   } else {
@@ -838,6 +844,9 @@ sub analyzeResults() {
   print "\nThe following optional items are RECOMMENDED:\n";
   print "-"x75 . "\n";
   foreach $line ( @OPT ) { print "$line" }
+
+  print "\nFor more information how to fix non COARDS-compliant items, see:\n";
+  print "http://wiki.geos-chem.org/Preparing_data_files_for_use_with_HEMCO\n";
 
   # Return w/ error code
   return( $? );
