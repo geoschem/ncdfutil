@@ -76,6 +76,8 @@
 #
 # !REVISION HISTORY:
 #  23 Dec 2015 - R. Yantosca - Initial version
+#  06 Jan 2016 - R. Yantosca - Add more error checks to avoid warnings
+#                              if null values are encountered
 #EOC
 #------------------------------------------------------------------------------
 #                  GEOS-Chem Global Chemical Transport Model                  !
@@ -169,14 +171,19 @@ sub analyzeTime($) {
 #
 # !REVISION HISTORY:
 #  23 Dec 2015 - R. Yantosca - Initial version
+#  06 Jan 2016 - R. Yantosca - Add checks for null values
 #EOP
 #------------------------------------------------------------------------------
 #BOC
 #
 # !LOCAL VARIABLES:
 #
-  my $msg   = "";
-  my $value = "";
+  # Scalars
+  my $exists = 0;
+
+  # Strings
+  my $msg    = "";
+  my $value  = "";
 
   # %%%%% Ensure variable is declared w/ the dimension of the same name
   if ( $varDims{$var} =~ "$var" ) { 
@@ -189,7 +196,7 @@ sub analyzeTime($) {
 
   # %%%%% Check if times are monotonic
   $value = &isMonotonic( $times );
-  if ( $value =~ m/has repeat values/ ) {
+  if ( $value eq "has repeat values" ) {
     $msg  = qq/$sep $var $value\n/;
     @BAD  = ( @BAD,  $msg );
   } else {
@@ -199,7 +206,7 @@ sub analyzeTime($) {
 
   # %%%%% Check the axis attribute (optional)
   $value = $axis{$var};
-  if ( $value =~ m/[Tt]/ ) {
+  if ( defined( $value ) && $value =~ m/[Tt]/ ) {
     $msg  = qq/$sep $var:axis =$value\n/;
     @GOOD = ( @GOOD, $msg );
   } else {
@@ -209,35 +216,52 @@ sub analyzeTime($) {
 
   # %%%%% Check the calendar attribute
   $value = $calendar{$var};
-  if ( $value =~ m/gregorian/  ||  
-       $value =~ m/standard/   || 
-       $value =~ m/noleap/    ) {
-    $msg  = qq/$sep $var:calendar =$value\n/;
-    @GOOD = ( @GOOD, $msg );
+  if ( defined( $value ) ) {
+    if ( $value =~ m/gregorian/ ||  
+         $value =~ m/standard/  || 
+         $value =~ m/noleap/       ) {
+      $msg  = qq/$sep $var:calendar =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    } else {
+       $msg  = qq/$sep $var:calendar should be either "gregorian", "noleap", or "standard"\n/;
+       @BAD  = ( @BAD,  $msg );
+    }
   } else {
-    $msg  = qq/$sep $var:calendar should be either "gregorian", "noleap", or "standard"\n"/;
+    $msg  = qq/$sep $var:calendar is missing\n/;
     @BAD  = ( @BAD,  $msg );
   }
 
   # %%%%% Check the long_name attribute
   $value = $longName{$var};
-  if ( $value =~ m/[Tt][Ii][Mm][Ee]/ ) {
-    $msg  = qq/$sep $var:long_name =$value\n/;
-    @GOOD = ( @GOOD, $msg );
+  if ( defined( $value ) ) {
+    if ( $value =~ m/[Tt][Ii][Mm][Ee]/ ) {
+      $msg  = qq/$sep $var:long_name =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    } else {
+      $msg  = qq/$sep $var:long_name (or time:standard_name) should be "Time"\n/;
+      @BAD  = ( @BAD,  $msg );
+    }
   } else {
-    $msg  = qq/$sep $var:long_name (or time:standard_name) should be "Time"\n/;
+    $msg  = qq/$sep $var:long_name (or time:standard_name) is missing\n/;
     @BAD  = ( @BAD,  $msg );
   }
 
   # %%%%% Check the units attribute
   $value = $units{$var};
-  if ( $value =~ m/days since/    || $value =~ m/hours since/   || 
-       $value =~ m/minutes since/ || $value =~ m/seconds since/   ) {
-    $msg  = qq/$sep $var:units =$value\n/;
-    @GOOD = ( @GOOD, $msg );
+  if ( defined( $value ) ) {
+    if ( $value =~ m/days since/    || 
+         $value =~ m/hours since/   || 
+         $value =~ m/minutes since/ || 
+         $value =~ m/seconds since/    ) {
+      $msg  = qq/$sep $var:units =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    } else {
+      $msg  = qq/"$sep $var:units" should be "{days,hours,minutes,seconds} since" a reference date\/time"\n/;
+      @BAD  = ( @BAD,  $msg );
+    }
   } else {
-    $msg  = qq/"$sep $var:units" should be "{days,hours,minutes,seconds} since" a reference date\/time"\n/;
-    @BAD  = ( @BAD,  $msg );
+    $msg  = qq/"$sep $var:units" is missing\n/;
+    @BAD  = ( @BAD,  $msg );   
   }
   
   # Return w/ error code
@@ -266,6 +290,7 @@ sub analyzeLev($) {
 #
 # !REVISION HISTORY:
 #  06 Jan 2015 - R. Yantosca - Initial version
+#  06 Jan 2016 - R. Yantosca - Add checks for null values
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -286,7 +311,7 @@ sub analyzeLev($) {
 
   # %%%%% Check if levels are monotonic
   $value = &isMonotonic( $levels );
-  if ( $value =~ m/has repeat values/ ) {
+  if ( $value eq "has repeat values" ) {
     $msg  = qq/$sep $var $value\n/;
     @BAD  = ( @BAD,  $msg );
   } else {
@@ -296,7 +321,7 @@ sub analyzeLev($) {
 
   # %%%%% Check the axis attribute (optional)
   $value = $axis{$var};
-  if ( $value =~ m/[Zz]/ ) {
+  if ( defined( $value ) && $value =~ m/[Zz]/ ) {
     $msg  = qq/$sep $var:axis =$value\n/;
     @GOOD = ( @GOOD, $msg );
   } else {
@@ -306,7 +331,8 @@ sub analyzeLev($) {
 
   # %%%%% Check the positive attribute (optional)
   $value = $positive{$var};
-  if ( $value =~ m/[Uu][Pp]/ || $value =~ m/[Dd][Oo][Ww][Nn]/ ) {
+  if ( defined( $value ) && ( $value =~ m/[Uu][Pp]/         || 
+                              $value =~ m/[Dd][Oo][Ww][Nn]/    ) ) {
     $msg  = qq/$sep $var:positive =$value\n/;
     @GOOD = ( @GOOD, $msg );
   } else {
@@ -316,23 +342,33 @@ sub analyzeLev($) {
 
   # %%%%% Check the long_name attribute
   $value = $longName{$var};
-  if ( $value =~ m/GEOS-Chem levels/ || $value =~ m/lev/ ||
-       $value =~ m/sigma/            || $value =~ m/eta/ ) {
-    $msg  = qq/$sep $var:long_name =$value\n/;
-    @GOOD = ( @GOOD, $msg );
+  if ( defined( $value ) ) {
+    if ( $value =~ m/GEOS-Chem levels/ || $value =~ m/lev/ ||
+         $value =~ m/sigma/            || $value =~ m/eta/    ) {
+      $msg  = qq/$sep $var:long_name =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    } else {
+      $msg  = qq/$sep $var:long_name should be "lev" or "GEOS-Chem levels" etc.\n/;
+      @BAD  = ( @BAD,  $msg );
+    }
   } else {
-    $msg  = qq/$sep $var:long_name should "GEOS-Chem levels" or similar\n/;
-    @BAD  = ( @BAD,  $msg );
+    $msg  = qq/$sep $var:long_name (or $var:standard_name) is missing\n/;
+    @BAD  = ( @BAD,  $msg );    
   }
 
   # %%%%% Check the units attribute
   $value = $units{$var};
-  if ( $value =~ m/sigma_level/ || $value =~m/1/ ) {
-    $msg  = qq/$sep $var:units =$value\n/;
-    @GOOD = ( @GOOD, $msg );
+  if ( defined( $value ) ) {
+    if ( $value =~ m/sigma_level/ || $value =~ m/1/ ) {
+      $msg  = qq/$sep $var:units =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    } else {
+      $msg  = qq/$sep $var:units should be dimensionless (e.g. "sigma_level", "1"\n/;
+      @BAD  = ( @BAD,  $msg );
+    }
   } else {
-    $msg  = qq/$sep $var:units should be dimensionless (e.g. "sigma_level", "1"\n/;
-    @BAD  = ( @BAD,  $msg );
+      $msg  = qq/$sep $var:units is missing\n/;
+      @BAD  = ( @BAD,  $msg );   
   }
 
   # Return w/ error code
@@ -361,6 +397,7 @@ sub analyzeLat($) {
 #
 # !REVISION HISTORY:
 #  06 Jan 2015 - R. Yantosca - Initial version
+#  06 Jan 2016 - R. Yantosca - Add checks for null values
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -381,7 +418,7 @@ sub analyzeLat($) {
 
   # %%%%% Check if latitudes are monotonic
   $value = &isMonotonic( $latitudes );
-  if ( $value =~ m/has repeat values/ ) {
+  if ( $value eq "has repeat values" ) {
     $msg  = qq/$sep $var $value\n/;
     @BAD  = ( @BAD,  $msg );
   } else {
@@ -391,7 +428,7 @@ sub analyzeLat($) {
 
   # %%%%% Check the axis attribute (optional)
   $value = $axis{$var};
-  if ( $value =~ m/[Yy]/ ) {
+  if ( defined( $value) && $value =~ m/[Yy]/ ) {
     $msg  = qq/$sep $var:axis =$value\n/;
     @GOOD = ( @GOOD, $msg );
   } else {
@@ -401,22 +438,32 @@ sub analyzeLat($) {
 
   # %%%%% Check the long_name attribute
   $value = $longName{$var};
-  if ( $value =~ m/[Ll][Aa][Tt][Ii][Tt][Uu][Dd][Ee]/ ) {
-    $msg  = qq/$sep $var:long_name =$value\n/;
-    @GOOD = ( @GOOD, $msg );
+  if ( defined( $value ) ) {
+    if ( $value =~ m/[Ll][Aa][Tt][Ii][Tt][Uu][Dd][Ee]/ ) {
+      $msg  = qq/$sep $var:long_name =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    } else {
+      $msg  = qq/$sep $var:long_name should be "Latitude"\n/;
+      @BAD  = ( @BAD,  $msg );
+    }
   } else {
-    $msg  = qq/$sep $var:long_name should be "Latitude"\n/;
+    $msg  = qq/$sep $var:long_name (or $var:standard_name) is missing\n/;
     @BAD  = ( @BAD,  $msg );
   }
 
   # %%%%% Check the :units attribute
   $value = $units{$var};
-  if ( $value =~ m/degrees_north/ ) {
-    $msg  = qq/$sep $var:units =$value\n/;
-    @GOOD = ( @GOOD, $msg );
-  } else {
-    $msg  = qq/$sep $var:units should be "degrees_north"\n/;
-    @BAD  = ( @BAD,  $msg );
+  if ( defined( $value ) ) { 
+    if ( $value =~ m/degrees_north/ ) {
+      $msg  = qq/$sep $var:units =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    } else {
+      $msg  = qq/$sep $var:units should be "degrees_north"\n/;
+      @BAD  = ( @BAD,  $msg );
+    }
+   } else {
+     $msg  = qq/$sep $var:units is missing\n/;
+     @BAD  = ( @BAD,  $msg );
   }
 
   # Return w/ error code
@@ -465,7 +512,7 @@ sub analyzeLon($) {
 
   # %%%%% Check if latitudes are monotonic
   $value = &isMonotonic( $longitudes );
-  if ( $value =~ m/has repeat values/ ) {
+  if ( $value eq "has repeat values" ) {
     $msg  = qq/$sep $var $value\n/;
     @BAD  = ( @BAD,  $msg );
   } else {
@@ -475,7 +522,7 @@ sub analyzeLon($) {
 
   # %%%%% Check the axis attribute (optional)
   $value = $axis{$var};
-  if ( $value =~ m/[Xx]/ ) {
+  if ( defined( $value ) && $value =~ m/[Xx]/ ) {
     $msg  = qq/$sep $var:axis =$value\n/;
     @GOOD = ( @GOOD, $msg );
   } else {
@@ -485,21 +532,31 @@ sub analyzeLon($) {
 
   # %%%%% Check the long_name attribute
   $value = $longName{$var};
-  if ( $value =~ m/[Ll][Oo][Nn][Gg][Ii][Tt][Uu][Dd][Ee]/ ) {
-    $msg  = qq/$sep $var:long_name =$value\n/;
-    @GOOD = ( @GOOD, $msg );
+  if ( defined( $value ) ) {
+    if ( $value =~ m/[Ll][Oo][Nn][Gg][Ii][Tt][Uu][Dd][Ee]/ ) {
+      $msg  = qq/$sep $var:long_name =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    } else {
+      $msg  = qq/$sep $var:long_name (or $var:standard_name) should be "Longitude"\n/;
+      @BAD  = ( @BAD,  $msg );
+    }
   } else {
-    $msg  = qq/$sep $var:long_name (or lon:standard_name) should be "Longitude"\n"/;
-    @BAD  = ( @BAD,  $msg );
+    $msg  = qq/$sep $var:long_name is missing\n/;
+    @BAD  = ( @BAD,  $msg );  
   }
 
   # %%%%% Check the units attribute
   $value = $units{$var};
-  if ( $value =~ m/degrees_east/ ) {
-    $msg  = qq/$sep $var:units =$value\n/;
-    @GOOD = ( @GOOD, $msg );
+  if ( defined( $value ) ) {
+    if ( $value =~ m/degrees_east/ ) {
+      $msg  = qq/$sep $var:units =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    } else {
+      $msg  = qq/$sep $var:units should be "degrees_east"\n/;
+      @BAD  = ( @BAD,  $msg );
+    }
   } else {
-    $msg  = qq/$sep $var:units should be "degrees_east"\n/;
+    $msg  = qq/$sep $var:units is missing\n/;
     @BAD  = ( @BAD,  $msg );
   }
 
@@ -561,66 +618,68 @@ sub analyzeVar($) {
 
   # %%%%% Check the long_name attribute
   $value = $longName{$var};
-  if ( length( $value ) == 0 ) {
-    $msg  = qq/$sep $var:long_name (or $var:standard_name) does not exist\n"/;
-    @BAD  = ( @BAD,  $msg );
-  } else {
+  if ( defined( $value ) && $value ne "" ) {
     $msg  = qq/$sep $var:long_name =$value\n/;
     @GOOD = ( @GOOD, $msg );
+  } else {
+    $msg  = qq/$sep $var:long_name (or $var:standard_name) is missing\n/;
+    @BAD  = ( @BAD,  $msg );
   }
 
   # %%%%% Check the units attribute
   $value = $units{$var};
-  if ( length( $value ) == 0 ) {
-    $msg  = qq/$sep $var:units does not exist\n/;
-    @BAD  = ( @BAD,  $msg );
-  } elsif ( $value =~ m/[Uu][Nn][Ii][Tt][Ll][Ee][Ss][Ss]/ || 
-            $value =~ m/[Nn][Aa]/                            )  {
-    $msg  = qq/$sep $var:units =$value\n/;
-    @BAD  = ( @BAD,  $msg );
+  if ( defined( $value ) ) {
+    if ( $value =~ m/[Uu][Nn][Ii][Tt][Ll][Ee][Ss][Ss]/ || 
+         $value =~ m/[Nn][Aa]/                            )  {
+      $msg  = qq/$sep $var:units =$value\n/;
+      @BAD  = ( @BAD,  $msg );
+    } else {
+      $msg = qq/$sep $var:units =$value\n/;
+      @GOOD = ( @GOOD, $msg );
+    }
   } else {
-    $msg = qq/$sep $var:units =$value\n/;
-    @GOOD = ( @GOOD, $msg );
+    $msg  = qq/$sep $var:units is missing\n/;
+    @BAD  = ( @BAD,  $msg );
   }
 
   # %%%%% Check the _FillValue attribute (optional)
   $value = $FillValue{$var};
-  if ( length( $value ) == 0 ) {
-    $msg  = qq/$sep Consider adding $var:_FillValue\n/;
-    @OPT  = ( @OPT,  $msg );
-  } else {
+  if ( defined( $value ) && $value ne "" ) {
     $msg = qq/$sep $var:long_name =$value\n/;
     @GOOD = ( @GOOD, $msg );
+  } else {
+    $msg  = qq/$sep Consider adding $var:_FillValue\n/;
+    @OPT  = ( @OPT,  $msg );
   }
 
   # %%%%% Check the missing_value attribute (optional)
   $value = $missing_value{$var};
-  if ( length( $value ) == 0 ) {
-    $msg  = qq/$sep Consider adding $var:missing_value\n/;
-    @OPT  = ( @OPT,  $msg );
-  } else {
+  if ( defined( $value ) && $value ne "" ) {
     $msg = qq/$sep $var:missing_value =$value\n/;
     @GOOD = ( @GOOD, $msg );
+  } else {
+    $msg  = qq/$sep Consider adding $var:missing_value\n/;
+    @OPT  = ( @OPT,  $msg );
   }
 
   # %%%%% Check the add_offset attribute (optional)
   $value = $add_offset{$var};
-  if ( length( $value ) == 0 ) {
-    $msg  = qq/$sep Consider adding $var:add_offset\n/;
-    @OPT  = ( @OPT,  $msg );
-  } else {
+  if ( defined( $value ) && $value ne "" ) {
     $msg = qq/$sep $var:add_offset =$value\n/;
     @GOOD = ( @GOOD, $msg );
+  } else {
+    $msg  = qq/$sep Consider adding $var:add_offset\n/;
+    @OPT  = ( @OPT,  $msg );
   }
 
   # %%%%% Check the scale_factor attribute (optional)
   $value = $scale_factor{$var};
-  if ( length( $value ) == 0 ) {
-    $msg  = qq/$sep Consider adding $var:scale_factor\n/;
-    @OPT  = ( @OPT,  $msg );
-  } else {
+  if ( defined( $value ) && $value ne "" ) {
     $msg = qq/$sep $var:scale_factor =$value\n/;
     @GOOD = ( @GOOD, $msg );
+  } else {
+    $msg  = qq/$sep Consider adding $var:scale_factor\n/;
+    @OPT  = ( @OPT,  $msg );
   }
 
   # Return with error code
@@ -643,7 +702,8 @@ sub analyzeVar($) {
 sub analyzeGlobAtts() {
 #
 # !REVISION HISTORY:
-#  05 Jan 2016 - R. Yantosca - Initial version  
+#  05 Jan 2016 - R. Yantosca - Initial version
+#  06 Jan 2016 - R. Yantosca - Add more robust error check
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -658,30 +718,30 @@ sub analyzeGlobAtts() {
   #-------------------------------------------------------------------------
 
   # %%%%% Check Conventions
-  if ( length( $conventions ) == 0 ) {
-    $msg  = qq/$sep The "Conventions" global attribute is missing\n/;
-    @BAD  = ( @BAD,  $msg );
-  } else { 
+  if ( $conventions ne "" ) {
     $msg  = qq/$sep Conventions:$conventions\n/; 
     @GOOD = ( @GOOD, $msg );
+  } else { 
+    $msg  = qq/$sep The "Conventions" global attribute is missing\n/;
+    @BAD  = ( @BAD,  $msg );
   }
 
   # %%%%% Check History
-  if ( length( $history ) == 0 ) {
-    $msg  = qq/$sep The "History" global attribute is missing\n/;
-    @BAD  = ( @BAD,  $msg );
-  } else { 
+  if ( $history ne "" ) {
     $msg  = qq/$sep History:$history\n/; 
     @GOOD = ( @GOOD, $msg );
+  } else { 
+    $msg  = qq/$sep The "History" global attribute is missing\n/;
+    @BAD  = ( @BAD,  $msg );
   }
 
   # %%%%% Check Title
-  if ( length( $title ) == 0 ) {
-    $msg  = qq/$sep The "Title" global attribute is missing\n/;
-    @BAD  = ( @BAD,  $msg );
-  } else { 
+  if ( $title ne ""  ) {
     $msg  = qq/$sep Title:$title\n/; 
     @GOOD = ( @GOOD, $msg );
+  } else { 
+    $msg  = qq/$sep The "Title" global attribute is missing\n/;
+    @BAD  = ( @BAD,  $msg );
   }
 
   #-------------------------------------------------------------------------
@@ -689,21 +749,21 @@ sub analyzeGlobAtts() {
   #-------------------------------------------------------------------------
 
   # %%%%% Check Format
-  if ( length( $format ) == 0 ) {
-    $msg  = qq/$sep Consider adding the "Format" global attribute\n/;
-    @OPT  = ( @OPT,  $msg );
-  } else { 
+  if ( $format ne "" ) {
     $msg  = qq/$sep Format:$format\n/; 
     @GOOD = ( @GOOD, $msg );
+  } else { 
+    $msg  = qq/$sep Consider adding the "Format" global attribute\n/;
+    @OPT  = ( @OPT,  $msg );
   }
 
   # %%%%% Check References
-  if ( length( $references ) == 0 ) {
-    $msg  = qq/$sep Consider adding the "References" global attribute\n/;
-    @OPT  = ( @OPT,  $msg );
-  } else { 
+  if ( $references ne "" ) {
     $msg  = qq/$sep References:$references\n/; 
     @GOOD = ( @GOOD, $msg );
+  } else {
+    $msg  = qq/$sep Consider adding the "References" global attribute\n/;
+    @OPT  = ( @OPT,  $msg );
   }
 
   # Return with error code
@@ -727,6 +787,7 @@ sub analyzeResults() {
 #
 # !REVISION HISTORY:
 #  06 Jan 2015 - R. Yantosca - Initial version
+#  06 Jan 2016 - R. Yantosca - Now test for upper/lower case index var names
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -743,11 +804,11 @@ sub analyzeResults() {
 
   # Check variables
   foreach $var ( @vars ) {
-    if    ( $var =~ m/time/ ) { &analyzeTime( $var ); }  # Check "time"
-    elsif ( $var =~ m/lev/  ) { &analyzeLev ( $var ); }  # Check "lev"
-    elsif ( $var =~ m/lat/  ) { &analyzeLat ( $var ); }  # Check "lat"
-    elsif ( $var =~ m/lon/  ) { &analyzeLon ( $var ); }  # Check "lon"
-    else                      { &analyzeVar ( $var ); }  # Check other vars
+    if    ( $var =~ m/[Tt][Ii][Mm][Ee]/ ) { &analyzeTime( $var ); }
+    elsif ( $var =~ m/[Ll][Ee][Vv]/     ) { &analyzeLev ( $var ); }
+    elsif ( $var =~ m/[Ll[[Aa][Tt]/     ) { &analyzeLat ( $var ); }
+    elsif ( $var =~ m/[Ll][Oo][Nn]/     ) { &analyzeLon ( $var ); }
+    else                                  { &analyzeVar ( $var ); }
   }
 
   # Check global attributes
@@ -756,18 +817,18 @@ sub analyzeResults() {
   #=========================================================================
   # Report things that are in COARDS compliance
   #=========================================================================
-  print "="x65 . "\n";
+  print "="x75 . "\n";
   print "Filename: $inputFile\n";
-  print "="x65 . "\n";
+  print "="x75 . "\n";
   print "\nThe following items adhere to the COARDS standard:\n";
-  print "-"x65 . "\n";
+  print "-"x75 . "\n";
   foreach $line ( @GOOD ) { print "$line" }
   
   #=========================================================================
   # Report things that are not in COARDS compliance
   #=========================================================================
   print "\nThe following items DO NOT ADHERE to the COARDS standard:\n";
-  print "-"x65 . "\n";
+  print "-"x75 . "\n";
   foreach $line ( @BAD ) { print "$line" }
 
 
@@ -775,7 +836,7 @@ sub analyzeResults() {
   # Report things that are not in COARDS compliance
   #=========================================================================
   print "\nThe following optional items are RECOMMENDED:\n";
-  print "-"x65 . "\n";
+  print "-"x75 . "\n";
   foreach $line ( @OPT ) { print "$line" }
 
   # Return w/ error code
@@ -806,6 +867,7 @@ sub parseFile($) {
 #
 # !REVISION HISTORY:
 #  11 Dec 2015 - R. Yantosca - Initial version
+#  05 Jan 2016 - R. Yantosca - Add extra error checks
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -1046,28 +1108,36 @@ sub parseFile($) {
   #=========================================================================
 
   # Remove extra characters from the times string
-  @result     =  split( /=/, $times );
-  $times      =  $result[1];
-  $times      =~ s/ //g;
-  $times      =~ s/;//g;
-
+  if ( $times ne "" ) {
+    @result     =  split( /=/, $times );
+    $times      =  $result[1];
+    $times      =~ s/ //g;
+    $times      =~ s/;//g;
+  }
+  
   # Remove extra characters from the levels string
-  @result     =  split( /=/, $levels );
-  $levels     =  $result[1];
-  $levels     =~ s/ //g;
-  $levels     =~ s/;//g;
+  if ( $levels ne "" ) { 
+    @result     =  split( /=/, $levels );
+    $levels     =  $result[1];
+    $levels     =~ s/ //g;
+    $levels     =~ s/;//g;
+  } 
 
   # Remove extra characters from the latitudes string
-  @result     =  split( /=/, $latitudes );
-  $latitudes  =  $result[1];
-  $latitudes  =~ s/ //g;
-  $latitudes  =~ s/;//g;
+  if ( $latitudes ne "" ) {
+    @result     =  split( /=/, $latitudes );
+    $latitudes  =  $result[1];
+    $latitudes  =~ s/ //g;
+    $latitudes  =~ s/;//g;
+  }
 
   # Remove extra characters from the longitudes string
-  @result     =  split( /=/, $longitudes );
-  $longitudes =  $result[1];
-  $longitudes =~ s/ //g;
-  $longitudes =~ s/;//g;
+  if ( $longitudes ne "" ) {
+    @result     =  split( /=/, $longitudes );
+    $longitudes =  $result[1];
+    $longitudes =~ s/ //g;
+    $longitudes =~ s/;//g;
+  }
   
   # Pass error code back to main program
   return( $? );
