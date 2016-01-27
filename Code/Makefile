@@ -160,7 +160,7 @@ lib: $(OBJ)
 	mv libNcUtils.a $(LIB)
 
 check: $(OBJx)
-	$(LD) $(OBJx) -L$(LIB) -lNcUtils $(LINK_NC) -o $(EXE)
+	$(LD) $(OBJx) -L$(LIB) -lNcUtils $(NC_LINK_CMD) -o $(EXE)
 	./$(EXE) 
 
 doc:

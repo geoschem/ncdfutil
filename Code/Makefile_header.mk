@@ -78,35 +78,87 @@ ifeq ($(shell [[ "$(MPI)" =~ $(REGEXP) ]] && echo true),true)
  COMPILER :=mpifort
 endif
 
-# Otherwise, make ifort the default compiler
+# Default compiler setting
 ifndef COMPILER
- COMPILER := ifort
+ COMPILER := $(FC)
 endif
 
-# Library include path
-INC_NC    := -I$(INC_NETCDF) -I$(INC_HDF5)
+###############################################################################
+###                                                                         ###
+###  Set linker commands for local and external libraries (incl. netCDF)    ###
+###                                                                         ###
+###############################################################################
 
-# Library link path: first try to get the list of proper linking flags
-# for this build of netCDF with nf-config and nc-config. 
-LINK_NC   := $(shell $(BIN_NETCDF)/nf-config --flibs)
-LINK_NC   += $(shell $(BIN_NETCDF)/nc-config --libs)
-LINK_NC   := $(filter -l%,$(LINK_NC))
+# netCDF Library include path.  
+NC_INC_CMD           := -I$(INC_NETCDF)
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%% NOTE TO NcdfUtilities USERS: If you do not have netCDF-4.2 installed
-#%%%% Then you can add/modify the linking sequence here.  (This sequence
-#%%%% is a guess, but is probably good enough for other netCDF builds.)
-ifeq ($(LINK_NC),) 
-LINK_NC   := -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -lz
+# Get the version number (e.g. "4130"=netCDF 4.1.3; "4200"=netCDF 4.2, etc.)
+NC_VERSION           :=$(shell nc-config --version)
+NC_VERSION           :=$(shell echo "$(NC_VERSION)" | sed 's|netCDF ||g')
+NC_VERSION           :=$(shell echo "$(NC_VERSION)" | sed 's|\.||g')
+NC_VERSION_LEN       :=$(shell perl -e "print length $(NC_VERSION)")
+ifeq ($(NC_VERSION_LEN),3)
+ NC_VERSION          :=$(NC_VERSION)0
 endif
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ifeq ($(NC_VERSION_LEN),2) 
+ NC_VERSION          :=$(NC_VERSION)00
+endif
 
-# Prepend the library directory path to the linking sequence
-LINK_NC   := -L$(LIB_NETCDF) -L$(LIB_HDF5) $(LINK_NC)
+# Test if we have at least netCDF 4.2.0.0
+AT_LEAST_NC_4200     :=$(shell perl -e "print ($(NC_VERSION) ge 4200)")
 
-#==============================================================================
-# IFORT compilation options (default)
-#==============================================================================
+ifeq ($(AT_LEAST_NC_4200),1) 
+
+  #-------------------------------------------------------------------------
+  # netCDF 4.2 and higher:
+  # Use "nf-config --flibs" and "nc-config --libs"
+  # Test if a separate netcdf-fortran path is specified
+  #-------------------------------------------------------------------------
+  NC_LINK_CMD        := $(shell nf-config --flibs)
+  NC_LINK_CMD        += $(shell nc-config --libs)
+
+else
+
+  #-----------------------------------------------------------------------
+  # Prior to netCDF 4.2:
+  # Use "nc-config --flibs"
+  #-----------------------------------------------------------------------
+  NC_LINK_CMD        := $(shell nc-config --flibs)
+
+endif
+
+#=============================================================================
+#%%%%% FIX FOR USE WITH THE GEOS-Chem-Libraries (bmy, 1/13/15)
+#%%%%% 
+#%%%%% If your GEOS-Chem-Libraries netCDF/HDF5 package was built in one 
+#%%%%% directory and then moved somewhere else, then nf-config and nc-config 
+#%%%%% may not return the proper link directory path.  
+#%%%%% 
+#%%%%% To avoid this error, we shall test if the $GC_LIB environment variable 
+#%%%%% contains the text "GEOS-Chem-Libraries".  (Recall that $GC_LIB is 
+#%%%%% defined in either your .bashrc or .cshrc file depending on which Unix 
+#%%%%% shell you use.)  If we find the text "GEOS-Chem-Libraries" in $GC_LIB, 
+#%%%%% then we shall override the library path returned by nf-config and 
+#%%%%% nc-config with the path specified by $GC_LIB.  This will ensure that 
+#%%%%% we point to the location where the GEOS-Chem-Libraries are installed.
+#%%%%%
+#%%%%% NOTE: This fix should work for most users.  If it does not work, then
+#%%%%% contact the GEOS-Chem Support Team (geos-chem-support@as.harvard.edu).
+#%%%%%
+REGEXP               :="GEOS-Chem-Libraries"
+ifeq ($(shell [[ "$(LIB_NETCDF)" =~ $(REGEXP) ]] && echo true),true)
+  NC_LINK_CMD        := $(filter -l%,$(NC_LINK_CMD))
+  NC_LINK_CMD        :=-L$(LIB_NETCDF) $(NC_LINK_CMD)
+endif
+#=============================================================================
+
+
+###############################################################################
+###                                                                         ###
+###  Define settings for the INTEL FORTRAN COMPILER (aka ifort)             ###
+###                                                                         ###
+###############################################################################
+
 ifeq ($(COMPILER),ifort) 
 
 # Pick correct options for debug run or regular run 
@@ -128,15 +180,18 @@ endif
 
 # Look for F90 module files in the $(MOD) directory
 FFLAGS += -module $(MOD)
-F90      = ifort $(FFLAGS) $(INC_NC)
+F90      = ifort $(FFLAGS) $(NC_INC_CMD)
 LD       = ifort $(FFLAGS)
 FREEFORM = -free
 
 endif
 
-#==============================================================================
-# MPIF90 compilation options
-#==============================================================================
+###############################################################################
+###                                                                         ###
+###  Define settings for the INTEL FORTRAN COMPILER WITH MPI (aka mpifort)  ###
+###                                                                         ###
+###############################################################################
+
 ifeq ($(COMPILER),mpifort) 
 
 # Pick correct options for debug run or regular run 
@@ -159,22 +214,25 @@ endif
 # Look for F90 module files in the $(MOD) directory
 FFLAGS += -module $(MOD)
 
-F90      = mpifort $(FFLAGS) $(INC_NC)
+F90      = mpifort $(FFLAGS) $(NC_INC_CMD)
 LD       = mpifort $(FFLAGS)
 FREEFORM = -free
 
 endif
 
-#==============================================================================
-# Portland Group (PGI) compilation options
-#==============================================================================
-ifeq ($(COMPILER),pgi) 
+###############################################################################
+###                                                                         ###
+###  Define settings for the PORTLAND GROUP COMPILER (aka "pgfortran")      ###
+###                                                                         ###
+###############################################################################
+
+ifeq ($(COMPILER),pgfortran) 
 
 # Pick correct options for debug run or regular run 
 ifdef DEBUG
-FFLAGS = -byteswapio -Mpreprocess -fast -Bstatic -mcmodel=medium
+FFLAGS = -Kieee -byteswapio -Mpreprocess -fast -mcmodel=medium
 else
-FFLAGS = -byteswapio -Mpreprocess -fast -mp -Mnosgimp -DHE4 -Bstatic -mcmodel=medium
+FFLAGS = -Kieee -byteswapio -Mpreprocess -fast -mp -Mnosgimp -mcmodel=medium
 endif
 
 # Add option for "array out of bounds" checking
@@ -185,96 +243,50 @@ endif
 # Look for F90 module files in the $(MOD) directory
 FFLAGS += -module $(MOD)
 
-F90      = pgf90 $(FFLAGS) $(INC_NC)
-LD       = pgf90 $(FFLAGS)
+F90      = pgfortran $(FFLAGS) $(NC_INC_CMD)
+LD       = pgfortran $(FFLAGS)
 FREEFORM = -Mfree
 
 endif
 
-#==============================================================================
-# SunStudio compilation options
-#==============================================================================
-ifeq ($(COMPILER),sun) 
+###############################################################################
+###                                                                         ###
+###  Specify pattern rules for compiliation                                 ###
+###  (i.e. tell "make" how to compile files w/ different extensions)        ###
+###                                                                         ###
+###############################################################################
 
-# Default compilation options
-# NOTE: -native builds in proper options for whichever chipset you have!
-FFLAGS = -fpp -fast -stackvar -xfilebyteorder=big16:%all -native -DHE4
+.%.o : %.f
+	$(F90) -c $<
+%.o : %.F
+	$(F90) -c $<
+%.o : %.f90
+	$(F90) -c $(FREEFORM) $<
+%.o : %.F90
+	$(F90) -c $(FREEFORM) $<
+%.o : %.c
+	$(CC) -c $*.c
 
-# Additional flags for parallel run
-ifndef DEBUG
-FFLAGS += -openmp=parallel
-endif
-
-# Add option for "array out of bounds" checking
-ifdef BOUNDS
-FFLAGS += -C
-endif
-
-#---------------------------------------------------------------
-# If your compiler is under the name "f90", use these lines!
-#F90      = f90 $(FFLAGS) $(INC_NC)
-#LD       = f90 $(FFLAGS)
-#---------------------------------------------------------------
-# If your compiler is under the name "sunf90", use these lines!
-F90      = sunf90 $(FFLAGS) $(INC_NC)
-LD       = sunf90 $(FFLAGS)
-##---------------------------------------------------------------
-FREEFORM = -free
-
-endif
-
-#==============================================================================
-# IBM/XLF compilation options
-# NOTE: someone who runs on IBM compiler should check this !!!
-#==============================================================================
-ifeq ($(COMPILER),xlf) 
-
-# Default compilation options
-FFLAGS = -bmaxdata:0x80000000 -bmaxstack:0x80000000 -qfixed -qsuffix=cpp=f -q64
-
-# Add optimization options
-FFLAGS += -O3 -qarch=auto -qtune=auto -qcache=auto -qmaxmem=-1 -qstrict -DHE4
-
-# Add more options for parallel run
-ifndef DEBUG
-FFLAGS += -qsmp=omp:opt -WF,-Dmultitask -qthreaded
-endif
-
-# Add option for "array out of bounds" checking
-ifdef BOUNDS
-FFLAGS += -C
-endif
-
-# Look for F90 module files in the $(MOD) directory
-FFLAGS += -moddir=$(MOD) -M$(MOD)
-
-F90      = xlf90_r $(FFLAGS) $(INC_NC)
-LD       = xlf90_r $(FFLAGS)
-FREEFORM = -qrealsize=8
-
-endif
-
-#==============================================================================
-# Default compilation rules for *.f, *.f90, *.F, *.F90 and *.c files
-#==============================================================================
-.SUFFIXES: .f .F .f90 .F90 .c
-.f.o:                   ; $(F90) -c $*.f
-.F.o:                   ; $(F90) -c $*.F
-.f90.o:                 ; $(F90) -c $(FREEFORM) $*.f90 
-.F90.o:                 ; $(F90) -c $(FREEFORM) $*.F90 
-
-#==============================================================================
-# Export global variables so that the main Makefile will see these
-#==============================================================================
+###############################################################################
+###                                                                         ###
+###  Export global variables so that the main Makefile will see these       ###
+###                                                                         ###
+###############################################################################
+ 
 export F90
 export FREEFORM
 export LD
-export LINK_NC
+export NC_LINK_CMD
+
 #EOC
 
-#==============================================================================
-# Print variables for testing/debugging purposes (uncomment if necessary)
-#==============================================================================
+###############################################################################
+###                                                                         ###
+###  Debug print output.  Normally you will leave the following lines       ###
+###  commented out.  Uncomment these lines for testing.                     ###
+###                                                                         ###
+###############################################################################
+
 #headerinfo:
 #	@echo '####### in Makefile_header.mk ########' 
 #	@echo "compiler: $(COMPILER)"
@@ -282,6 +294,7 @@ export LINK_NC
 #	@echo "bounds  : $(BOUNDS)"
 #	@echo "f90     : $(F90)"
 #	@echo "ld      : $(LD)"
-#	@echo "link_nc : $(LINK_NC)"
+#	@echo "inc_nc  : $(NC_INC_CMD)"
+#	@echo "link_nc : $(NC_LINK_CMD)"
 #	@echo "cc      : $(CC)"
 
