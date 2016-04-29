@@ -1062,6 +1062,7 @@ CONTAINS
 !  27 Jul 2012 - C. Keller - Initial version
 !  09 Oct 2014 - C. Keller - Now also support 'minutes since ...'
 !  05 Nov 2014 - C. Keller - Bug fix if reference datetime is in minutes.
+!  29 Apr 2016 - R. Yantosca - Don't initialize pointers in declaration stmts
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -1069,7 +1070,7 @@ CONTAINS
 ! !LOCAL VARIABLES:
 !
     CHARACTER(LEN=255)  :: ncUnit
-    INTEGER, POINTER    :: tVec(:) => NULL()
+    INTEGER, POINTER    :: tVec(:)
     INTEGER             :: refYr, refMt, refDy, refHr, refMn, refSc
     INTEGER             :: T, YYYYMMDD, hhmmss 
     REAL*8              :: realrefDy, refJulday, tJulday
@@ -1080,6 +1081,7 @@ CONTAINS
 
     ! Init values
     RC = 0
+    tVec => NULL()
     IF ( PRESENT(TimeUnit) ) TimeUnit = ''
     IF ( PRESENT(refYear ) ) refYear  = 0
 
@@ -2334,6 +2336,7 @@ CONTAINS
 !
 ! !REVISION HISTORY:
 !  03 Oct 2014 - C. Keller   - Initial version
+!  29 Apr 2016 - R. Yantosca - Don't initialize pointers in declaration stmts
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -2345,9 +2348,9 @@ CONTAINS
     INTEGER              :: nlevs
     INTEGER              :: st1d(1), ct1d(1) 
     LOGICAL              :: ok
-    REAL*4, POINTER      :: a(:)        => NULL()
-    REAL*4, POINTER      :: b(:)        => NULL()
-    REAL*4, POINTER      :: ps(:,:,:,:) => NULL()
+    REAL*4, POINTER      :: a(:)
+    REAL*4, POINTER      :: b(:)
+    REAL*4, POINTER      :: ps(:,:,:,:)
     REAL*8               :: p0
     CHARACTER(LEN=255)   :: formula, ThisUnit
     CHARACTER(LEN=255)   :: aname, bname, psname, p0name
@@ -2360,6 +2363,9 @@ CONTAINS
 
     ! Init
     p0 = -999.d0
+    a  => NULL()
+    b  => NULL()
+    ps => NULL()
 
     ! Get desired grid dimensions.
     nlon = lon2 - lon1 + 1
@@ -3257,9 +3263,9 @@ CONTAINS
 !\\
 ! !INTERFACE:
 !
-  SUBROUTINE NC_CREATE( NcFile, nLon,  nLat,  nLev,  nTime, &
-                        fId,    lonID, latId, levId, timeId, VarCt, &
-                        CREATE_NC4 )
+  SUBROUTINE NC_CREATE( NcFile, title, nLon,  nLat,  nLev,   &
+                        nTime,  fId,   lonID, latId, levId,  &
+                        timeId, VarCt, CREATE_NC4 )
 !
 ! !USES:
 !
@@ -3269,11 +3275,12 @@ CONTAINS
 !
 ! !INPUT PARAMETERS:
 !
-    CHARACTER(LEN=*), INTENT(IN   )  :: ncFile     ! ncdf file path + name 
-    INTEGER,          INTENT(IN   )  :: nLon       ! # of lons 
-    INTEGER,          INTENT(IN   )  :: nLat       ! # of lats 
-    INTEGER,          INTENT(IN   )  :: nLev       ! # of levs 
-    INTEGER,          INTENT(IN   )  :: nTime      ! # of times 
+    CHARACTER(LEN=*), INTENT(IN   )  :: ncFile   ! ncdf file path + name 
+    CHARACTER(LEN=*), INTENT(IN   )  :: title    ! ncdf file title
+    INTEGER,          INTENT(IN   )  :: nLon     ! # of lons 
+    INTEGER,          INTENT(IN   )  :: nLat     ! # of lats 
+    INTEGER,          INTENT(IN   )  :: nLev     ! # of levs 
+    INTEGER,          INTENT(IN   )  :: nTime    ! # of times 
     LOGICAL,          OPTIONAL       :: CREATE_NC4 ! Save output as netCDF-4
 !
 ! !OUTPUT PARAMETERS:
@@ -3296,6 +3303,7 @@ CONTAINS
 ! !REVISION HISTORY:
 !  15 Jun 2012 - C. Keller   - Initial version
 !  11 Jan 2016 - R. Yantosca - Added optional CREATE_NC4 to save as netCDF-4
+!  14 Jan 2016 - E. Lundgren - Pass title string for netcdf metadata
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -3321,7 +3329,7 @@ CONTAINS
     !--------------------------------
     ! SET GLOBAL ATTRIBUTES
     !--------------------------------
-    CALL NcDef_Glob_Attributes(    fId, 'title',   'HEMCO diagnostics' ) 
+    CALL NcDef_Glob_Attributes(    fId, 'title',   TRIM(title)         ) 
     CALL NcDef_Glob_Attributes(    fId, 'history', 'NC_CREATE.F90'     ) 
     IF ( SAVE_AS_NC4 ) THEN
        CALL NcDef_Glob_Attributes( fId, 'format',  'netCDF-4'          )
