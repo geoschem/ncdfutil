@@ -89,8 +89,15 @@ endif
 ###                                                                         ###
 ###############################################################################
 
-# netCDF Library include path.  
-NC_INC_CMD           := -I$(INC_NETCDF)
+ifdef NETCDF_INCLUDE
+ NC_INC_CMD           := -I$(NETCDF_INCLUDE)
+else
+ NC_INC_CMD           := -I$(INC_NETCDF)
+endif
+
+ifdef NETCDF_FORTRAN_INCLUDE
+ NC_INC_CMD           += -I$(NETCDF_FORTRAN_INCLUDE)
+endif
 
 # Get the version number (e.g. "4130"=netCDF 4.1.3; "4200"=netCDF 4.2, etc.)
 NC_VERSION           :=$(shell nc-config --version)
@@ -251,6 +258,142 @@ endif
 
 ###############################################################################
 ###                                                                         ###
+###  Define settings for the GNU FORTRAN COMPILER (aka gfortran)            ###
+###                                                                         ###
+###############################################################################
+
+ifeq ($(COMPILER),gfortran) 
+
+  # Base set of compiler flags
+  FFLAGS             :=-cpp -w -std=legacy -fautomatic -fno-align-commons
+  FFLAGS             += -fconvert=big-endian
+  FFLAGS             += -fno-range-check
+
+  # Default optimization level for all routines (-O2)
+  ifndef OPT
+    # Options of interest
+    #  -limf                Intel math libraries - machine must have them
+    #  -O3                  Highest safe optimization level
+    #  -march=native        Make the binary machine-specific. If in doubt, 
+    #                        use a specific architecture, eg...
+    #  -march=corei7-avx    Binary uses optimizations for 
+    #                        Intel Sandy-Bridge Xeon (e.g. E5-2680)
+    #  -mfpmath=sse         Use SSE extensions
+    #  -funroll-loops       Enable loop unrolling
+    OPT              := -O3 -funroll-loops
+    #OPT              := -O3 -march=corei7-avx -mfpmath=sse -funroll-loops
+  endif
+
+  # Pick compiler options for debug run or regular run 
+  #-fcheck=all would be more comprehensive but would force bounds checking
+  REGEXP             := (^[Yy]|^[Yy][Ee][Ss])
+  ifeq ($(shell [[ "$(DEBUG)" =~ $(REGEXP) ]] && echo true),true)
+#    FFLAGS           += -g -O0 -gdwarf-3 -gstrict-dwarf 
+    FFLAGS           += -g -O0
+    FFLAGS           += -Wall -Wextra -Wconversion
+    FFLAGS           += -Warray-temporaries -fcheck-array-temporaries
+    TRACEBACK        := yes
+    USER_DEFS        += -DDEBUG
+  else
+    FFLAGS           += $(OPT)
+  endif
+
+  # Prevent any optimizations that would change numerical results
+  #GFORTRAN_BAD#FFLAGS             += -fp-model source
+
+  # Turn on OpenMP parallelization
+  REGEXP             :=(^[Yy]|^[Yy][Ee][Ss])
+  ifeq ($(shell [[ "$(OMP)" =~ $(REGEXP) ]] && echo true),true)
+    FFLAGS           += -fopenmp
+  endif
+
+  # Get Operating System (Linux = Linux; Darwin = MacOSX)
+  ifndef UNAME
+    UNAME            :=$(shell uname)
+  endif
+
+  # OSX compilation options
+  ifeq ($(UNAME),Darwin)
+    # This has not yet been tested
+    $(error $(ERR_OSCOMP))
+  #  FFLAGS           += -Wl,-stack_size,0x2cb410000  # 12 GB of stack space
+  #  ifdef DEBUG
+  #    FFLAGS         += -g0 -debug -save-temps -fpic -Wl,-no_pie
+  #  endif
+  endif
+
+  # Add options for medium memory model.  This is to prevent G-C from 
+  # running out of memory at hi-res, especially when using netCDF I/O.
+  ifneq ($(UNAME),Darwin)
+    #GFORTRAN_BAD#FFLAGS           += -mcmodel=medium -shared-intel
+    FFLAGS           += -mcmodel=medium
+  endif
+
+  # Turn on checking for floating-point exceptions
+  # These are approximately equivalent to -fpe0 -ftrapuv in IFORT
+  REGEXP             :=(^[Yy]|^[Yy][Ee][Ss])
+  ifeq ($(shell [[ "$(FPE)" =~ $(REGEXP) ]] && echo true),true)
+    FFLAGS           += -ffpe-trap=invalid,zero,overflow -finit-real=snan
+  endif
+  ifeq ($(shell [[ "$(FPEX)" =~ $(REGEXP) ]] && echo true),true)
+    FFLAGS           += -ffpe-trap=invalid,zero,overflow -finit-real=snan
+  endif
+
+  # Add option for "array out of bounds" checking
+  REGEXP             := (^[Yy]|^[Yy][Ee][Ss])
+  ifeq ($(shell [[ "$(BOUNDS)" =~ $(REGEXP) ]] && echo true),true)
+    FFLAGS           += -fbounds-check
+  endif
+
+  # Also add traceback option
+  REGEXP             :=(^[Yy]|^[Yy][Ee][Ss])
+  ifeq ($(shell [[ "$(TRACEBACK)" =~ $(REGEXP) ]] && echo true),true)
+    FFLAGS           += -fbacktrace
+    ifndef DEBUG
+       FFLAGS += -g
+    endif
+  endif
+
+  # Loosen KPP tolerances upon non-convergence and try again
+  REGEXP             :=(^[Yy]|^[Yy][Ee][Ss])
+  ifeq ($(shell [[ "$(KPP_SOLVE_ALWAYS)" =~ $(REGEXP) ]] && echo true),true)
+    USER_DEFS        += -DKPP_SOLVE_ALWAYS
+  endif
+
+  # Add flexible precision declaration
+  ifeq ($(PRECISION),8)
+    USER_DEFS        += -DUSE_REAL8
+  endif
+
+  # Add timers declaration
+  ifeq ($(TIMERS),1)
+    USER_DEFS        += -DUSE_TIMERS
+  endif
+
+  # Append the user options in USER_DEFS to FFLAGS
+  FFLAGS             += $(USER_DEFS)
+
+  # Include options (i.e. for finding *.h, *.mod files)
+  INCLUDE :=-J$(MOD) $(NC_INC_CMD)
+
+  # Do not append the ESMF/MAPL/FVDYCORE includes for ISORROPIA, because it 
+  # will not compile.  ISORROPIA is slated for removal shortly. (bmy, 11/21/14)
+  INCLUDE_ISO        :=$(INCLUDE)
+
+  # Append the ESMF/MAPL/FVDYCORE include commands
+  ifeq ($(HPC),yes)
+    INCLUDE          += $(MAPL_INC) $(ESMF_MOD) $(ESMF_INC) $(FV_INC)
+  endif
+
+  # Set the standard compiler variables
+  F90                :=gfortran $(FFLAGS) $(NC_INC_CMD)
+  LD                 :=gfortran $(FFLAGS)
+  FREEFORM           := -ffree-form -ffree-line-length-none
+
+endif
+
+###############################################################################
+###                                                                         ###
 ###  Specify pattern rules for compiliation                                 ###
 ###  (i.e. tell "make" how to compile files w/ different extensions)        ###
 ###                                                                         ###
@@ -297,4 +440,3 @@ export NC_LINK_CMD
 #	@echo "inc_nc  : $(NC_INC_CMD)"
 #	@echo "link_nc : $(NC_LINK_CMD)"
 #	@echo "cc      : $(CC)"
-
