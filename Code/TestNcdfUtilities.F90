@@ -83,7 +83,7 @@ PROGRAM TestNcdfUtilities
   INTEGER            :: I                        ! Loop index
   INTEGER            :: longdeg, latdeg          ! For longdat, latdat
   REAL*8             :: longDat(ILONG)           ! Longitude data
-  REAL*8             :: latDat (ILONG)           ! Latitude data
+  REAL*8             :: latDat (ILAT )           ! Latitude data
   REAL*8             :: levDat (IVERT)           ! Altitude data
   INTEGER            :: timeDat(ITIME)           ! Time data
 
