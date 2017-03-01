@@ -159,6 +159,27 @@ ifeq ($(shell [[ "$(LIB_NETCDF)" =~ $(REGEXP) ]] && echo true),true)
 endif
 #=============================================================================
 
+###############################################################################
+###                                                                         ###
+###  Test if the netCDF library was built with compression enabled          ###
+###                                                                         ###
+###############################################################################
+
+# Test if the "nf_def_var_deflate" function is defined in netcdf.inc
+# Look for netcdf.inc where the netCDF-Fortran library is located
+ifdef NETCDF_FORTRAN_INCLUDE
+  GREP :=$(strip $(shell grep nf_def_var_deflate $(NETCDF_FORTRAN_INCLUDE)/netcdf.inc))
+else
+  GREP :=$(strip $(shell grep nf_def_var_deflate $(NETCDF_INCLUDE)/netcdf.inc))
+endif
+
+# Look for the second word of the combined search results
+WORD                 :=$(word 2,"$(GREP)")
+
+# If it matches "nf_def_var_deflate", then define Cpp flag NC_HAS_COMPRESSION 
+ifeq ($(WORD),nf_def_var_deflate)
+  USER_DEFS          += -DNC_HAS_COMPRESSION
+endif
 
 ###############################################################################
 ###                                                                         ###
