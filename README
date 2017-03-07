@@ -1,5 +1,5 @@
 README -- NcdfUtilities: Fortran code to read/write netCDF output
-01 Apr 2010
+07 Mar 2017
 Bob Yantosca
 yantosca@seas.harvard.edu
 
@@ -41,6 +41,40 @@ http://wiki.seas.harvard.edu/geos-chem/index.php/Installing_ESMF_and_other_requi
 have the LaTeX utilities (i.e. latex, dvips, dvipdf) installed on your system.
 
 
+Setting environment variables:
+===============================================================================
+
+The NcdfUtilities library requires that you set the following environment
+variables in your system startup file (e.g. .bashrc or .cshrc):
+
+(1) NETCDF_BIN             : The "bin/" folder of the netCDF installation,
+                             where utilities such as nc-config are stored
+           
+(2) NETCDF_INCLUDE         : The "include" folder of the netCDF installation,
+                             where the netcdf.inc and netcdf_mod.F90 are found.
+        
+
+(3) NETCDF_LIB             : The "lib/" or "lib64" folder of the netCDF
+                             installation, where the netCDF library files
+                             (ending in *.a) files are found.
+
+NOTE: In netCDF-4.2 and higher versions, the netCDF Fortran libraries are
+built from a separate distribution.  If on your system, the netCDF-Fortran
+libraries have been installed into a different folder than the rest of the
+netCDF libaries, you will also need to set these environment variables
+in your system startup file:
+
+(4) NETCDF_FORTRAN_BIN     : The "bin/" folder of the netCDF-Fortran 
+                             installation, where "nf-config" is found.
+
+(5) NETCDF_FORTRAN_INCLUDE : The "include/" folder of the netCDF-Fortran
+                             installation, where "netcdf.inc" is found.
+
+(6) NETCDF_FORTRAN_LIB     : The "lib/" or "lib64/" folder of the
+                             netCDF-Fortran installation, where the 
+                             library files (ending in *.a) are found.
+
+
 Building the NcdfUtilities Library:
 ===============================================================================
 
@@ -48,36 +82,12 @@ The NcdfUtilities/Code directory contains the Fortran source code modules
 as well as two Makefiles (named Makefile and Makefile_header.mk).  
 
 The file "Makefile_header.mk" is a sub-makefile which is used to define the
-compilation options for different compilers.  At present, the ifort, pgf90,
-SunStudio, and IBM XLF compilers are supported.
+compilation options for different compilers.  At present, the ifort, gfortran,
+and pgfortran compilers are supported.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% NOTE: NcdfUtilities has only been built with the ifort compiler.  If    %%%
-%%% you use a different compiler, you may need to port the code yourself!   %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-The "Makefile_header.mk" file contains the location of the netCDF library
-and include files.  You will have to customize this for your system.  Look 
-for these lines of code:
-
-###############################################################################
-# Include directory for NETCDF library
-# Modify this accordingly for your system!
-INC_NC     = -I$(BL_INC_NETCDF)
-###############################################################################
-# Library link commands for NETCDF library
-# Modify this accordingly for your system!
-LINK_NC    = -L$(BL_LIB_NETCDF) -lnetcdf -lmpi_cxx -lmpi
-###############################################################################
-
-Modify the NC_INC_DIR line to specify the directory path where the 
-"netcdf.inc" is found.  A common path for this is /usr/local/include.
-
-Likewise, modify the NC_LIB_DIR line to specify the directory path where the 
-netCDF library file "libnetcdf.a"  A common path for this is /usr/local/lib.
-
-After specifying these lines in Makefile_header.mk, you are ready to build the 
-executable.  Make sure you are in the Code/ subdirectory and type:
+Once you have set the proper environment variables for your system (as
+described above), you are ready to build the executable.  Make sure you are 
+in the Code/ subdirectory and type:
 
    make lib
 
