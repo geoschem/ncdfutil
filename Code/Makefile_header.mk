@@ -68,19 +68,42 @@
 #------------------------------------------------------------------------------
 #BOC
 
-#==============================================================================
-# Initialization
-#==============================================================================
+###############################################################################
+###                                                                         ###
+###  Determine the compiler that is being used                              ###
+###                                                                         ###
+###############################################################################
 
-# If MPI=yes, then the compiler should be mpifort
-REGEXP :=(^[Yy]|^[Yy][Ee][Ss])
-ifeq ($(shell [[ "$(MPI)" =~ $(REGEXP) ]] && echo true),true)
- COMPILER :=mpifort
+# Default setting for COMPILER
+THE_COMPILER=undefined
+
+# Test if we are using the Intel Fortran Compiler
+REGEXP :=(^[Ii][Ff][Oo][Rr][Tt])
+ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
+ THE_COMPILER=ifort
 endif
 
-# Default compiler setting
-ifndef COMPILER
- COMPILER := $(FC)
+# Test if we are using the GNU Fortran Compiler
+REGEXP :=(^[Gg][Ff][Oo][Rr][Tt][Rr][Aa][Nn])
+ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
+ THE_COMPILER=gfortran
+endif
+
+# Test if we are using the Portland Group compiler
+REGEXP :=(^[Pp][Gg][Ff]|^[Pp][Gg][Ii])
+ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
+ THE_COMPILER=pgfortran
+endif
+
+# Test if we are using mpif90 or mpifort
+REGEXP :=(^[Mm][Pp][Ii])
+ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
+ THE_COMPILER=mpifort
+endif
+
+# Exit with error if the compiler is not one of the above
+ifeq ($(THE_COMPILER),undefined) 
+ $(error 'Unknown Fortran compiler; check your FC environment variable!')
 endif
 
 ###############################################################################
@@ -100,7 +123,7 @@ ifdef NETCDF_FORTRAN_INCLUDE
 endif
 
 # Get the version number (e.g. "4130"=netCDF 4.1.3; "4200"=netCDF 4.2, etc.)
-NC_VERSION           :=$(shell nc-config --version)
+NC_VERSION           :=$(shell $(NETCDF_BIN)/nc-config --version)
 NC_VERSION           :=$(shell echo "$(NC_VERSION)" | sed 's|netCDF ||g')
 NC_VERSION           :=$(shell echo "$(NC_VERSION)" | sed 's|\.||g')
 NC_VERSION_LEN       :=$(shell perl -e "print length $(NC_VERSION)")
@@ -121,8 +144,12 @@ ifeq ($(AT_LEAST_NC_4200),1)
   # Use "nf-config --flibs" and "nc-config --libs"
   # Test if a separate netcdf-fortran path is specified
   #-------------------------------------------------------------------------
-  NC_LINK_CMD        := $(shell nf-config --flibs)
-  NC_LINK_CMD        += $(shell nc-config --libs)
+  ifdef NETCDF_FORTRAN_BIN
+     NC_LINK_CMD     := $(shell $(NETCDF_FORTRAN_BIN)/nf-config --flibs)
+  else
+     NC_LINK_CMD     := $(shell $(NETCDF_BIN)/nf-config --flibs)
+  endif
+  NC_LINK_CMD        += $(shell $(NETCDF_BIN)/nc-config --libs)
 
 else
 
@@ -130,7 +157,8 @@ else
   # Prior to netCDF 4.2:
   # Use "nc-config --flibs"
   #-----------------------------------------------------------------------
-  NC_LINK_CMD        := $(shell nc-config --flibs)
+  NC_LINK_CMD        := $(shell $(NETCDF_BIN)/nc-config --flibs)
+  NC_LINK_CMD        += $(shell $(NETCDF_BIN)/nc-config --libs)
 
 endif
 
@@ -187,7 +215,7 @@ endif
 ###                                                                         ###
 ###############################################################################
 
-ifeq ($(COMPILER),ifort) 
+ifeq ($(THE_COMPILER),ifort) 
 
 # Pick correct options for debug run or regular run 
 ifdef DEBUG
@@ -220,7 +248,7 @@ endif
 ###                                                                         ###
 ###############################################################################
 
-ifeq ($(COMPILER),mpifort) 
+ifeq ($(THE_COMPILER),mpifort) 
 
 # Pick correct options for debug run or regular run 
 ifdef DEBUG
@@ -254,7 +282,7 @@ endif
 ###                                                                         ###
 ###############################################################################
 
-ifeq ($(COMPILER),pgfortran) 
+ifeq ($(THE_COMPILER),pgfortran) 
 
 # Pick correct options for debug run or regular run 
 ifdef DEBUG
@@ -283,7 +311,7 @@ endif
 ###                                                                         ###
 ###############################################################################
 
-ifeq ($(COMPILER),gfortran) 
+ifeq ($(THE_COMPILER),gfortran) 
 
   # Base set of compiler flags
   FFLAGS             :=-cpp -w -std=legacy -fautomatic -fno-align-commons
@@ -453,11 +481,11 @@ export NC_LINK_CMD
 
 #headerinfo:
 #	@echo '####### in Makefile_header.mk ########' 
-#	@echo "compiler: $(COMPILER)"
-#	@echo "debug   : $(DEBUG)"
-#	@echo "bounds  : $(BOUNDS)"
-#	@echo "f90     : $(F90)"
-#	@echo "ld      : $(LD)"
-#	@echo "inc_nc  : $(NC_INC_CMD)"
-#	@echo "link_nc : $(NC_LINK_CMD)"
-#	@echo "cc      : $(CC)"
+#	@echo "THE_COMPILER : $(THE_COMPILER)"
+#	@echo "DEBUG        : $(DEBUG)"
+#	@echo "BOUNDS       : $(BOUNDS)"
+#	@echo "F90          : $(F90)"
+#	@echo "LD           : $(LD)"
+#	@echo "NC_INC_CMD   : $(NC_INC_CMD)"
+#	@echo "NC_LINK_CMD  : $(NC_LINK_CMD)"
+#	@echo "CC           : $(CC)"
