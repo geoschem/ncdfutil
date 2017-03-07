@@ -63,7 +63,8 @@
 #                              env variables to specify directory paths
 #  18 Jul 2014 - R. Yantosca - Now use INC_HDF5, BIN_HDF5, LIB_HDF5
 #                              env variables to specify directory paths
-#   9 Nov 2015 - R. Yantosca - Now set COMPILER=mpifort when MPI=yes
+#  09 Nov 2015 - R. Yantosca - Now set COMPILER=mpifort when MPI=yes
+#  07 Mar 2017 - R. Yantosca - Replace COMPILER with COMPILER_FAMILY
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -74,36 +75,40 @@
 ###                                                                         ###
 ###############################################################################
 
-# Default setting for COMPILER
-THE_COMPILER=undefined
+# Default setting for COMPILER_FAMILY
+COMPILER_FAMILY=undefined
+
+# Test if we are using mpif90 or mpifort (assume Intel)
+REGEXP :=(^[Mm][Pp][Ii])
+ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
+ COMPILE_CMD     :=mpif90
+ COMPILER_FAMILY :=Intel
+endif
 
 # Test if we are using the Intel Fortran Compiler
 REGEXP :=(^[Ii][Ff][Oo][Rr][Tt])
 ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
- THE_COMPILER=ifort
+ COMPILE_CMD      :=$(FC)
+ COMPILER_FAMILY  :=Intel
 endif
 
 # Test if we are using the GNU Fortran Compiler
 REGEXP :=(^[Gg][Ff][Oo][Rr][Tt][Rr][Aa][Nn])
 ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
- THE_COMPILER=gfortran
+ COMPILE_CMD      :=$(FC)
+ COMPILER_FAMILY  :=GNU
 endif
 
 # Test if we are using the Portland Group compiler
 REGEXP :=(^[Pp][Gg][Ff]|^[Pp][Gg][Ii])
 ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
- THE_COMPILER=pgfortran
-endif
-
-# Test if we are using mpif90 or mpifort
-REGEXP :=(^[Mm][Pp][Ii])
-ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
- THE_COMPILER=mpifort
+ COMPILE_CMD      :=$(FC)
+ COMPILER_FAMILY  :=PGI
 endif
 
 # Exit with error if the compiler is not one of the above
-ifeq ($(THE_COMPILER),undefined) 
- $(error 'Unknown Fortran compiler; check your FC environment variable!')
+ifeq ($(COMPILER_FAMILY),undefined) 
+  $(error 'Unknown Fortran compiler; check your FC environment variable!' )
 endif
 
 ###############################################################################
@@ -114,8 +119,6 @@ endif
 
 ifdef NETCDF_INCLUDE
  NC_INC_CMD           := -I$(NETCDF_INCLUDE)
-else
- NC_INC_CMD           := -I$(INC_NETCDF)
 endif
 
 ifdef NETCDF_FORTRAN_INCLUDE
@@ -181,9 +184,9 @@ endif
 #%%%%% contact the GEOS-Chem Support Team (geos-chem-support@as.harvard.edu).
 #%%%%%
 REGEXP               :="GEOS-Chem-Libraries"
-ifeq ($(shell [[ "$(LIB_NETCDF)" =~ $(REGEXP) ]] && echo true),true)
+ifeq ($(shell [[ "$(NETCDF_LIB)" =~ $(REGEXP) ]] && echo true),true)
   NC_LINK_CMD        := $(filter -l%,$(NC_LINK_CMD))
-  NC_LINK_CMD        :=-L$(LIB_NETCDF) $(NC_LINK_CMD)
+  NC_LINK_CMD        :=-L$(NETCDF_LIB) $(NC_LINK_CMD)
 endif
 #=============================================================================
 
@@ -215,7 +218,7 @@ endif
 ###                                                                         ###
 ###############################################################################
 
-ifeq ($(THE_COMPILER),ifort) 
+ifeq ($(COMPILER_FAMILY),Intel) 
 
 # Pick correct options for debug run or regular run 
 ifdef DEBUG
@@ -236,42 +239,8 @@ endif
 
 # Look for F90 module files in the $(MOD) directory
 FFLAGS += -module $(MOD)
-F90      = ifort $(FFLAGS) $(NC_INC_CMD)
-LD       = ifort $(FFLAGS)
-FREEFORM = -free
-
-endif
-
-###############################################################################
-###                                                                         ###
-###  Define settings for the INTEL FORTRAN COMPILER WITH MPI (aka mpifort)  ###
-###                                                                         ###
-###############################################################################
-
-ifeq ($(THE_COMPILER),mpifort) 
-
-# Pick correct options for debug run or regular run 
-ifdef DEBUG
-FFLAGS = -cpp -w -noalign -convert big_endian -g -traceback -mcmodel=medium
-else
-FFLAGS = -cpp -w -O2 -auto -noalign -convert big_endian -openmp -mcmodel=medium
-endif
-
-# Add option for "array out of bounds" checking
-ifdef BOUNDS
-FFLAGS += -CB
-endif
-
-# Also add traceback option
-ifdef TRACEBACK
-FFLAGS += -traceback
-endif
-
-# Look for F90 module files in the $(MOD) directory
-FFLAGS += -module $(MOD)
-
-F90      = mpifort $(FFLAGS) $(NC_INC_CMD)
-LD       = mpifort $(FFLAGS)
+F90      = $(COMPILE_CMD) $(FFLAGS) $(NC_INC_CMD)
+LD       = $(COMPILE_CMD) $(FFLAGS)
 FREEFORM = -free
 
 endif
@@ -282,7 +251,7 @@ endif
 ###                                                                         ###
 ###############################################################################
 
-ifeq ($(THE_COMPILER),pgfortran) 
+ifeq ($(COMPILER_FAMILY),PGI) 
 
 # Pick correct options for debug run or regular run 
 ifdef DEBUG
@@ -299,8 +268,8 @@ endif
 # Look for F90 module files in the $(MOD) directory
 FFLAGS += -module $(MOD)
 
-F90      = pgfortran $(FFLAGS) $(NC_INC_CMD)
-LD       = pgfortran $(FFLAGS)
+F90      = $(COMPILE_CMD) $(FFLAGS) $(NC_INC_CMD)
+LD       = $(COMPILE_CMD) $(FFLAGS)
 FREEFORM = -Mfree
 
 endif
@@ -311,7 +280,7 @@ endif
 ###                                                                         ###
 ###############################################################################
 
-ifeq ($(THE_COMPILER),gfortran) 
+ifeq ($(COMPILER_FAMILY),GNU) 
 
   # Base set of compiler flags
   FFLAGS             :=-cpp -w -std=legacy -fautomatic -fno-align-commons
@@ -435,8 +404,8 @@ ifeq ($(THE_COMPILER),gfortran)
   endif
 
   # Set the standard compiler variables
-  F90                :=gfortran $(FFLAGS) $(NC_INC_CMD)
-  LD                 :=gfortran $(FFLAGS)
+  F90                :=$(COMPILE_CMD) $(FFLAGS) $(NC_INC_CMD)
+  LD                 :=$(COMPILE_CMD) $(FFLAGS)
   FREEFORM           := -ffree-form -ffree-line-length-none
 
 endif
