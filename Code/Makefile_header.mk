@@ -75,34 +75,40 @@
 ###                                                                         ###
 ###############################################################################
 
+# Test if we are using mpif90 or mpifort (assume Intel)
+REGEXP :=(^[Yy]|^[Yy][Ee][Ss])
+ifeq ($(shell [[ "$(HPC)" =~ $(REGEXP) ]] && echo true),true)
+ IS_HPC           :=1
+ COMPILE_CMD      :=mpif90
+else
+ IS_HPC           :=0
+ COMPILE_CMD      :=$(FC)
+endif
+
 # Default setting for COMPILER_FAMILY
-COMPILER_FAMILY=undefined
+COMPILER_FAMILY   :=undefined
 
 # Test if we are using mpif90 or mpifort (assume Intel)
 REGEXP :=(^[Mm][Pp][Ii])
 ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
- COMPILE_CMD     :=mpif90
- COMPILER_FAMILY :=Intel
+ COMPILER_FAMILY  :=Intel
 endif
 
 # Test if we are using the Intel Fortran Compiler
 REGEXP :=(^[Ii][Ff][Oo][Rr][Tt])
 ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
- COMPILE_CMD      :=$(FC)
  COMPILER_FAMILY  :=Intel
 endif
 
 # Test if we are using the GNU Fortran Compiler
 REGEXP :=(^[Gg][Ff][Oo][Rr][Tt][Rr][Aa][Nn])
 ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
- COMPILE_CMD      :=$(FC)
  COMPILER_FAMILY  :=GNU
 endif
 
 # Test if we are using the Portland Group compiler
 REGEXP :=(^[Pp][Gg][Ff]|^[Pp][Gg][Ii])
 ifeq ($(shell [[ "$(FC)" =~ $(REGEXP) ]] && echo true),true)
- COMPILE_CMD      :=$(FC)
  COMPILER_FAMILY  :=PGI
 endif
 
