@@ -158,6 +158,8 @@ CONTAINS
 !  03 Jul 2008 - R. Yantosca (Harvard University) - Initial version
 !  24 Jan 2012 - R. Yantosca - Modified to provide COARDS-compliant output
 !  14 Jun 2012 - R. Yantosca - Now writes a 2-D character array
+!  10 May 2017 - R. Yantosca - Don't manually increment vId, it's returned
+!                              as an output from NCDEF_VARIABLE
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -248,7 +250,6 @@ CONTAINS
 
     ! Time index array (hardwire date to 2011/01/01)
     var1    = (/ idTime /)
-    vId     = 0
     units   = 'minutes since 2011-01-01 00:00:00 GMT'
     delta_t = '0000-00-00 00:00:00'
     begin_d = '20110101'
@@ -263,14 +264,12 @@ CONTAINS
     CALL NcDef_Var_Attributes( fId, vId, 'time_increment', TRIM( incr    )  )
 
     ! Define vertical (pressure) variable
-    vId  = vId + 1
     var1 = (/ idLev /)
     CALL NcDef_Variable( fId, 'lev', NF_DOUBLE, 1, var1, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name', 'Pressure'       )
     CALL NcDef_Var_Attributes( fId, vId, 'units',     'hPa'            )
 
     ! Define latitude variable
-    vId  = vId + 1
     var1 = (/ idLat /)
     CALL NcDef_Variable( fId, 'lat', NF_DOUBLE, 1, var1, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name', 'Latitude'       )
@@ -278,13 +277,11 @@ CONTAINS
 
     ! Define longitude variable
     var1 = (/ idLon /)
-    vId  = vId + 1
     CALL NcDef_Variable( fId, 'lon', NF_DOUBLE, 1, var1, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId,  'long_name', 'Longitude'     )
     CALL NcDef_Var_Attributes( fId, vId,  'units',     'degrees_east'  )
       
     ! Define surface pressure variable
-    vId  = vId + 1
     var3 = (/ idLon, idLat, idTime /)
     CALL NcDef_Variable      ( fId, 'PS', NF_FLOAT, 3, var3, vId, COMPRESS    )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'Surface Pressure' )
@@ -302,7 +299,6 @@ CONTAINS
     CALL NcBegin_Def( fId )
 
     ! Define temperature variable
-    vId  = vId + 1
     var4 = (/ idLon, idLat, idLev, idTime /)
     CALL NcDef_Variable      ( fId, 'T', NF_FLOAT, 4, var4, vId, COMPRESS     )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'Temperature'      )
@@ -314,7 +310,6 @@ CONTAINS
 
 
     ! Define description variable
-    vId  = vId + 1
     var2 = (/ idChar1, idChar2 /)
     CALL NcDef_Variable      ( fId, 'DESC', NF_CHAR, 2, var2, vId, COMPRESS   )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'Description'      )
