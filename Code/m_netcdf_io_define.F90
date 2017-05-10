@@ -173,7 +173,7 @@ CONTAINS
 !
 ! !OUTPUT PARAMETERS:
 !
-!!  varid  : netCDF varid id returned by NF_DEF_VAR
+!!  varid  : netCDF variable id returned by NF_DEF_VAR
     INTEGER,           INTENT(OUT) :: var_id
 !
 ! !DESCRIPTION: Defines a netCDF variable.
