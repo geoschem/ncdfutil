@@ -25,6 +25,7 @@
 #  04 Aug 2009 - R. Yantosca - Initial version
 #  25 Jan 2012 - R. Yantosca - Now add m_netcdf_io_readattr.F90
 #  31 Jan 2012 - R. Yantosca - Now create auto doc for Perl scripts
+#  21 Sep 2017 - R. Yantosca - Now call protex with "./' in front
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -75,7 +76,7 @@ PS1  := NcdfUtilities.ps
 
 srcdoc:
 	rm -f $(TEX1)
-	protex -sf $(SRC1) > $(TEX1)
+	./protex -sf $(SRC1) > $(TEX1)
 	latex $(TEX1)
 	latex $(TEX1)
 	latex $(TEX1)
@@ -103,7 +104,7 @@ PS2  := NcdfUtilities_Makefiles.ps
 
 makedoc:
 	rm -f $(TEX2)
-	protex -fS $(SRC2) > $(TEX2)
+	./protex -fS $(SRC2) > $(TEX2)
 	latex $(TEX2)
 	latex $(TEX2)
 	latex $(TEX2)
@@ -132,7 +133,7 @@ PS3  := NcdfUtilities_perl.ps
 
 perldoc:
 	rm -f $(TEX3)
-	protex -sfS $(SRC3) > $(TEX3)
+	./protex -sfS $(SRC3) > $(TEX3)
 	latex $(TEX3)
 	latex $(TEX3)
 	latex $(TEX3)
