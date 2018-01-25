@@ -3409,6 +3409,7 @@ CONTAINS
 !                              routine (i.e. to define variables afterwards)
 !  24 Aug 2017 - R. Yantosca - Added nIlev and iLevId variables so that we can
 !                               create the iLev dimension (level interfaces)
+!  24 Jan 2018 - R. Yantosca - Add update frequency as an optional global attr
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -3573,7 +3574,7 @@ CONTAINS
                          DataType,  VarCt,        DefMode,      Compress,    & 
                          AddOffset, MissingValue, ScaleFactor,  Calendar,    &
                          Axis,      StandardName, FormulaTerms, AvgMethod,   &
-                         Positive,  iLevId                                  )
+                         Positive,  iLevId,       nUpdates                  )
 !
 ! !INPUT PARAMETERS:
 ! 
@@ -3601,6 +3602,8 @@ CONTAINS
     CHARACTER(LEN=*), OPTIONAL      :: FormulaTerms ! Formula for vert coords
     CHARACTER(LEN=*), OPTIONAL      :: AvgMethod    ! Averaging method
     CHARACTER(LEN=*), OPTIONAL      :: Positive     ! Positive dir (up or down)
+    REAL*4,           OPTIONAL      :: nUpdates     ! # of updates (for time-
+                                                    !  averaged fields only)
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -3792,6 +3795,14 @@ CONTAINS
        ENDIF
     ENDIF
 
+    ! Number of updates
+    IF ( PRESENT( nUpdates ) ) THEN
+       IF ( nUpdates > 0.0 ) THEN
+          Att = 'number_of_updates'
+          CALL NcDef_Var_Attributes( fId, VarCt, TRIM(Att), nUpdates )
+       ENDIF
+    ENDIF
+
     ! Close definition section, if necessary
     IF ( .not. isDefMode ) CALL NcEnd_Def( fId )
 
@@ -3829,14 +3840,26 @@ CONTAINS
 !
 ! !REVISION HISTORY:
 !  28 Aug 2017 - R. Yantosca - Initial version
+!  11 Sep 2017 - R. Yantosca - Do not call NF_DEF_VAR_CHUNKING if the netCDF
+!                               library was built w/o compression enabled
 !EOP
 !------------------------------------------------------------------------------
 !BOC
 !
 ! !LOCAL VARIABLES:
 !
+#if defined( NC_HAS_COMPRESSION )
+
     ! Turn on chunking for this variable
+    ! But only if the netCDF library supports it
     RC = NF_Def_Var_Chunking( fId, vId, NF_CHUNKED, ChunkSizes )
+
+#else
+
+    ! Otherwise return success
+    RC = 0
+
+#endif
 
   END SUBROUTINE Nc_Var_Chunk
 !EOC

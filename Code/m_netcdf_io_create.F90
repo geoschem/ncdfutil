@@ -67,7 +67,7 @@ CONTAINS
 !
 ! !REMARKS:
 !  If the netCDF4 library is used, then the NF_CLOBBER flag will write
-!  a classic (i.e. netCDF3) file.  Use IOR(NF_NETCDF4,NF_CLASSIC_MODEL) to 
+!  a classic (i.e. netCDF3) file.  Use OR(NF_NETCDF4,NF_CLASSIC_MODEL) to 
 !  create netCDF-4 file that supports compression and uses "classic" netcdf data model
 !  (no groups, no user-defined types)
 !

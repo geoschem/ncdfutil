@@ -53,7 +53,7 @@
 #==============================================================================
 
 # Define variables
-SHELL := /bin/sh
+SHELL := /bin/bash
 BIN   := ../bin
 DOC   := ../doc
 EXE   := TestNcdfUtilities.x
@@ -89,7 +89,7 @@ OBJx := $(EXE:.x=.o)
 #-----------------
 # Dependencies
 #-----------------
-charpak_mod.o            : charpak_mod.F
+charpak_mod.o            : charpak_mod.F90
 
 julday_mod.o             : julday_mod.F
 
