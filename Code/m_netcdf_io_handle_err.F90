@@ -19,13 +19,11 @@ module m_netcdf_io_handle_err
 ! !DESCRIPTION: Provides a routine to handle error messages.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  10 Jul 2014 - R. Yantosca - Now use F90 free-format indentation
-!  10 Jul 2014 - R. Yantosca - Cosmetic chagnes in ProTeX headers
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-----------------------------------------------------------------------------
 !BOC
@@ -55,15 +53,14 @@ CONTAINS
 !   ierr : netCDF error number
     integer, intent (in)   :: ierr
 !
-! !DESCRIPTION: Handles netCDF errors. Prints out a message and then exit. 
+! !DESCRIPTION: Handles netCDF errors. Prints out a message and then exit.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC

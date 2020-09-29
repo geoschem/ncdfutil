@@ -17,7 +17,7 @@
 !
       ! Public interface
       PUBLIC :: NcWr
-      
+
       ! Private methods overloaded by public interface
       ! (see below for info about these routines & the arguments they take)
       INTERFACE NcWr
@@ -48,15 +48,11 @@
 ! !DESCRIPTION: Routines for writing variables in a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Add REAL*8 and REAL*4 versions of all 
-!                              NCWR_* routines.
-!  20 Dec 2011 - R. Yantosca - Added Ncwr_4d_Int 
-!  20 Dec 2011 - R. Yantosca - Make process more efficient by not casting
-!                              to temporary variables before file write
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 
@@ -92,14 +88,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a netCDF real scalar variable.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!  25 Aug 2017 - R. Yantosca - Renamed to NcWr_Scal_R4 and takes a
-!                              REAL*4 argument
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -153,12 +146,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a netCDF real scalar variable.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -213,12 +205,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a netCDF integer scalar variable.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -275,17 +266,15 @@ CONTAINS
       integer          , intent(in)   :: cnt1d (1)
       real*8           , intent(in)   :: varwr_1d(cnt1d(1))
 !
-! !DESCRIPTION: Writes out a 1D netCDF real array and does some error 
+! !DESCRIPTION: Writes out a 1D netCDF real array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to Ncrd_1d_R8.  REAL*8 version.
-!  20 Dec 2011 - R. Yantosca - Now write varwr_1d directly to file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_PUT_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -342,16 +331,15 @@ CONTAINS
       integer          , intent(in)   :: cnt1d (1)
       real*4           , intent(in)   :: varwr_1d(cnt1d(1))
 !
-! !DESCRIPTION: Writes out a 1D netCDF real array and does some error 
+! !DESCRIPTION: Writes out a 1D netCDF real array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to Ncwr_1d_R4.  REAL*4 version.
-!  20 Dec 2011 - R. Yantosca - Now write varwr_1d directly to file
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -408,14 +396,15 @@ CONTAINS
       integer          , intent(in)   :: cnt1d (1)
       integer          , intent(in)   :: varwr_1di(cnt1d(1))
 !
-! !DESCRIPTION: Writes out a 1D netCDF integer array and does some error 
+! !DESCRIPTION: Writes out a 1D netCDF integer array and does some error
 ! checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -475,13 +464,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 2D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to Ncwr_2d_R8.  REAL*8 version.
-!  20 Dec 2011 - R. Yantosca - Now write varwr_2d directly to file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_PUT_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -541,12 +528,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 2D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to Ncwr_2d_R4.  REAL*4 version.
-!  20 Dec 2011 - R. Yantosca - Now write varwr_2d directly to file
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -603,16 +589,15 @@ CONTAINS
       integer          , intent(in)   :: cnt2d (2)
       integer          , intent(in)   :: varwr_2di(cnt2d(1), cnt2d(2))
 !
-! !DESCRIPTION: Writes out a 2D netCDF integer array and does some error 
+! !DESCRIPTION: Writes out a 2D netCDF integer array and does some error
 !   checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -672,13 +657,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 3D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to NcWr_3d_R8.  REAL*8 version
-!  20 Dec 2011 - R. Yantosca - Now write varwr_3d directly to file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_PUT_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -738,11 +721,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 3D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to NcWr_3d_R4.  REAL*4 version
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -801,16 +784,15 @@ CONTAINS
       integer          , intent(in)   :: cnt3d (3)
       integer          , intent(in)   :: varwr_3di(cnt3d(1), cnt3d(2), cnt3d(3))
 !
-! !DESCRIPTION: Writes out a 3D netCDF integer array and does some error 
+! !DESCRIPTION: Writes out a 3D netCDF integer array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -874,13 +856,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 4D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to NcWr_3d_R8.  REAL*8 version
-!  20 Dec 2011 - R. Yantosca - Now write varwr_4d directly to file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_PUT_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -942,12 +922,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 4D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to NcWr_3d_R8.  REAL*8 version
-!  20 Dec 2011 - R. Yantosca - Now write varwr_4d directly to file
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1006,16 +985,15 @@ CONTAINS
       integer          , intent(in)   :: varwr_4di(cnt4d(1), cnt4d(2), &
                                                    cnt4d(3), cnt4d(4))
 !
-! !DESCRIPTION: Writes out a 3D netCDF integer array and does some error 
+! !DESCRIPTION: Writes out a 3D netCDF integer array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1078,13 +1056,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 5D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to NcWr_5d_R8.  REAL*8 version
-!  20 Dec 2011 - R. Yantosca - Now write varwr_5d directly to file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_PUT_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1146,13 +1122,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 5D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to NcWr_5d_R4.  REAL*4 version
-!  20 Dec 2011 - R. Yantosca - Now write var5d_tmp directly to file
-
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1214,13 +1188,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 6D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to NcWr_6d_R8.  REAL*8 version.
-!  20 Dec 2011 - R. Yantosca - Now write varwr_6d directly to file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_PUT_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1282,12 +1254,11 @@ CONTAINS
 ! !DESCRIPTION: Writes out a 6D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  20 Dec 2011 - R. Yantosca - Renamed to NcWr_6d_R4.  REAL*4 version.
-!  20 Dec 2011 - R. Yantosca - Now write varwr_6d directly to file
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1344,16 +1315,15 @@ CONTAINS
       integer          , intent(in)   :: cnt1d (1)
       character (len=1), intent(in)   :: varwr_1dc(cnt1d(1))
 !
-! !DESCRIPTION: Writes out a 1D netCDF character array and does some error 
+! !DESCRIPTION: Writes out a 1D netCDF character array and does some error
 !   checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1410,16 +1380,15 @@ CONTAINS
       integer          , intent(in)   :: cnt2d (2)
       character (len=1), intent(in)   :: char_2d(cnt2d(1), cnt2d(2))
 !
-! !DESCRIPTION: Writes out a 2D netCDF character array and does some error 
+! !DESCRIPTION: Writes out a 2D netCDF character array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC

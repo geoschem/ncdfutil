@@ -20,12 +20,11 @@ module m_netcdf_io_open
 ! !DESCRIPTION: Routines to open a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  10 Jul 2014 - R. Yantosca - Now use F90 free-format indentation
-!  10 Jul 2014 - R. Yantosca - Now
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-----------------------------------------------------------------------------
 !BOC
@@ -62,12 +61,11 @@ CONTAINS
 ! !DESCRIPTION: Opens a netCDF file for reading and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -115,16 +113,15 @@ CONTAINS
 !!  ncid    : opened netCDF file id
     integer          , intent (out)   :: ncid
 !
-! !DESCRIPTION: Opens a netCDF file for reading/writing and does some 
+! !DESCRIPTION: Opens a netCDF file for reading/writing and does some
 !  error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC

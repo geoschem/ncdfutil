@@ -4,7 +4,7 @@
 !------------------------------------------------------------------------------
 !BOP
 !
-! !MODULE: TestNcdfUtilities.F90
+! !MODULE: TestNcdfUtil.F90
 !
 ! !DESCRIPTION: Program TestNcdfUtilities.F90 is the standalone driver that
 !  tests if the libNcUtils.a file was built correctly.
@@ -12,10 +12,7 @@
 !\\
 ! !INTERFACE:
 !
-PROGRAM TestNcdfUtilities
-!
-! !USES: 
-!
+PROGRAM TestNcdfUtil
 !
 ! !USES:
 !
@@ -23,24 +20,24 @@ PROGRAM TestNcdfUtilities
   USE m_netcdf_io_define
   USE m_netcdf_io_create
   USE m_netcdf_io_write
-   
+
   ! Modules for netCDF read
   USE m_netcdf_io_open
   USE m_netcdf_io_get_dimlen
   USE m_netcdf_io_read
   USE m_netcdf_io_readattr
-  USE m_netcdf_io_close     
-  
+  USE m_netcdf_io_close
+
   IMPLICIT NONE
 
   ! netCDF include files
 # include "netcdf.inc"
 
 !
-! !BUGS:  
+! !BUGS:
 !  None known at this time
 !
-! !SEE ALSO: 
+! !SEE ALSO:
 !  m_do_err_out.F90
 !  m_netcdf_io_checks.F90
 !  m_netcdf_io_close.F90
@@ -52,20 +49,16 @@ PROGRAM TestNcdfUtilities
 !  m_netcdf_io_read.F90
 !  m_netcdf_io_write.F90
 !
-! !SYSTEM ROUTINES: 
+! !SYSTEM ROUTINES:
 !  None
 !
 ! !REMARKS:
 !  netCDF library modules originally written by Jules Kouatchou, GSFC
 !  and re-packaged into NcdfUtilities by Bob Yantosca, Harvard Univ.
 
-! !REVISION HISTORY: 
+! !REVISION HISTORY:
 !  03 Jul 2008 - R. Yantosca (Harvard University) - Initial version
-!  24 Jan 2012 - R. Yantosca - Modified to write COARDS-compliant output
-!  31 Jan 2012 - R. Yantosca - Bug fix in error checks for attributes
-!  14 Jun 2012 - R. Yantosca - Now tests 2D character read/write
-!  10 Jul 2014 - R. Yantosca - Cosmetic changes in ProTeX headers
-!  12 Jun 2017 - R. Yantosca - Now write a test global attribute
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -75,7 +68,7 @@ PROGRAM TestNcdfUtilities
   ! Global private variables
   INTEGER, PARAMETER :: ILONG  = 72              ! # of longitude grid points
   INTEGER, PARAMETER :: ILAT   = 46              ! # of latitude  grid points
-  INTEGER, PARAMETER :: IVERT  = 55              ! # of altitude  levels 
+  INTEGER, PARAMETER :: IVERT  = 55              ! # of altitude  levels
   INTEGER, PARAMETER :: ITIME  = 1               ! # of times
   INTEGER, PARAMETER :: ICHAR1 = 2               ! # of times
   INTEGER, PARAMETER :: ICHAR2 = 20              ! # of times
@@ -108,7 +101,7 @@ PROGRAM TestNcdfUtilities
 
   ! Pressure
   do i = 1, IVERT
-     levDat(i) = 1000.00 - (i-1)*(920.00/IVERT) 
+     levDat(i) = 1000.00 - (i-1)*(920.00/IVERT)
   enddo
 
   ! Time data
@@ -148,17 +141,16 @@ CONTAINS
 !  \end{description}
 !
 !  Fake values are used for the data.  An unlimited dimension is employed
-!  to write out several records of kel.  
+!  to write out several records of kel.
 !\\
 !\\
 ! !INTERFACE:
 !
   SUBROUTINE TestNcdfCreate
 !
-! !REVISION HISTORY: 
+! !REVISION HISTORY:
 !  03 Jul 2008 - R. Yantosca (Harvard University) - Initial version
-!  24 Jan 2012 - R. Yantosca - Modified to provide COARDS-compliant output
-!  14 Jun 2012 - R. Yantosca - Now writes a 2-D character array
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -192,7 +184,7 @@ CONTAINS
     WRITE( 6, '(a)' ) '=== Begin netCDF file creation test ==='
 
     CALL NcCr_Wr( fId, 'my_filename.nc' )
-    
+
     ! Turn filling off
     CALL NcSetFill( fId, NF_NOFILL, omode )
 
@@ -201,31 +193,31 @@ CONTAINS
     !=========================================================================
 
     ! Time dimension
-    WRITE( 6, '(a)' ) 'Writing time  (dim     ) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing time  (dim     ) to netCDF file'
     CALL NcDef_Dimension( fId, 'time',     ITIME,  idTime )
 
     ! Altitude dimension
-    WRITE( 6, '(a)' ) 'Writing lev   (dim     ) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing lev   (dim     ) to netCDF file'
     CALL NcDef_Dimension( fId, 'lev',      IVERT,  idLev )
 
     ! Latitude dimension
-    WRITE( 6, '(a)' ) 'Writing lat   (dim     ) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing lat   (dim     ) to netCDF file'
     CALL NcDef_Dimension( fId, 'lat',      ILAT ,  idLat )
-        
-    ! Longitude dimension                      
-    WRITE( 6, '(a)' ) 'Writing lon   (dim     ) to netCDF file'    
+
+    ! Longitude dimension
+    WRITE( 6, '(a)' ) 'Writing lon   (dim     ) to netCDF file'
     CALL NcDef_Dimension( fId, 'lon',      ILONG,  idLon )
-    
+
     ! Character dimension 1
-    WRITE( 6, '(a)' ) 'Writing cdim1 (dim     ) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing cdim1 (dim     ) to netCDF file'
     CALL NcDef_Dimension( fId, 'cdim1', ICHAR1, idChar1 )
 
     ! Character dimension 1
-    WRITE( 6, '(a)' ) 'Writing cdim2 (dim     ) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing cdim2 (dim     ) to netCDF file'
     CALL NcDef_Dimension( fId, 'cdim2', ICHAR2, idChar2 )
-    
+
     !=========================================================================
-    ! Define the variables and variable attributes 
+    ! Define the variables and variable attributes
     ! for COARDS compliance and GAMAP compliance
     !=========================================================================
     CALL NcDef_Glob_Attributes( fId, 'Title',       'NcdfUtilities test file' )
@@ -257,8 +249,8 @@ CONTAINS
     incr    = '000000'
     CALL NcDef_Variable      ( fId, 'time', NF_INT,  1, var1, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'time'           )
-    CALL NcDef_Var_Attributes( fId, vId, 'units',          TRIM( units   )  ) 
-    CALL NcDef_Var_Attributes( fId, vId, 'delta_t',        TRIM( delta_t )  ) 
+    CALL NcDef_Var_Attributes( fId, vId, 'units',          TRIM( units   )  )
+    CALL NcDef_Var_Attributes( fId, vId, 'delta_t',        TRIM( delta_t )  )
     CALL NcDef_Var_Attributes( fId, vId, 'begin_date',     TRIM( begin_d )  )
     CALL NcDef_Var_Attributes( fId, vId, 'begin_time',     TRIM( begin_t )  )
     CALL NcDef_Var_Attributes( fId, vId, 'time_increment', TRIM( incr    )  )
@@ -280,7 +272,7 @@ CONTAINS
     CALL NcDef_Variable( fId, 'lon', NF_DOUBLE, 1, var1, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId,  'long_name', 'Longitude'     )
     CALL NcDef_Var_Attributes( fId, vId,  'units',     'degrees_east'  )
-      
+
     ! Define surface pressure variable
     var3 = (/ idLon, idLat, idTime /)
     CALL NcDef_Variable      ( fId, 'PS', NF_FLOAT, 3, var3, vId, COMPRESS    )
@@ -290,7 +282,7 @@ CONTAINS
     CALL NcDef_Var_Attributes( fId, vId, 'missing_value',   1e15              )
     CALL NcDef_Var_Attributes( fId, vId, '_FillValue',      1e15              )
     CALL NcDef_Var_Attributes( fId, vId, 'valid_range',     (/-1e15, +1e15/)  )
-    
+
     !=========================================================================
     ! %%% TEST RE-OPENING OF DEFINE MODE %%%
     !=========================================================================
@@ -321,40 +313,40 @@ CONTAINS
     ! %%% NOW WRITE DATA TO FILE    %%%
     !=========================================================================
     CALL NcEnd_def( fId )
-    
+
     ! Write longitude
-    WRITE( 6, '(a)' ) 'Writing lon   (1D array) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing lon   (1D array) to netCDF file'
     st1d = (/ 1     /)
     ct1d = (/ ILONG /)
     CALL NcWr( longDat, fId, 'lon', st1d, ct1d )
-    
+
     ! Write latitude
-    WRITE( 6, '(a)' ) 'Writing lat   (1D array) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing lat   (1D array) to netCDF file'
     st1d = (/ 1    /)
     ct1d = (/ ILAT /)
     CALL NcWr( latDat, fId, 'lat', st1d, ct1d )
-    
+
     ! Write pressure levels
-    WRITE( 6, '(a)' ) 'Writing lev   (1D array) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing lev   (1D array) to netCDF file'
     st1d = (/ 1     /)
     ct1d = (/ IVERT /)
     CALL NcWr( levDat, fId, 'lev', st1d, ct1d )
 
     ! Write pressure levels
-    WRITE( 6, '(a)' ) 'Writing time  (1D array) to netCDF file'    
+    WRITE( 6, '(a)' ) 'Writing time  (1D array) to netCDF file'
     st1d = (/ 1     /)
     ct1d = (/ ITIME /)
     CALL NcWr( timeDat, fId, 'time', st1d, ct1d )
-    
+
     ! Write surface pressure (w/ fake values)
-    WRITE( 6, '(a)' ) 'Writing PS    (3D array) to netCDF file'  
+    WRITE( 6, '(a)' ) 'Writing PS    (3D array) to netCDF file'
     PS    = 1e0
     st3d = (/ 1,     1,   1      /)
     ct3d = (/ ILONG, ILAT, ITIME /)
     CALL NcWr( PS, fId, 'PS', st3d, ct3d )
-    
+
     ! Write temperature (w/ fake values)
-    WRITE( 6, '(a)' ) 'Writing T     (4D array) to netCDF file'      
+    WRITE( 6, '(a)' ) 'Writing T     (4D array) to netCDF file'
     T    = 1e0
     st4d = (/ 1,     1,    1,     1     /)
     ct4d = (/ ILONG, ILAT, IVERT, ITIME /)
@@ -367,7 +359,7 @@ CONTAINS
     ENDDO
 
     ! Write temperature (w/ fake values)
-    WRITE( 6, '(a)' ) 'Writing DESC  (2D char ) to netCDF file'      
+    WRITE( 6, '(a)' ) 'Writing DESC  (2D char ) to netCDF file'
     st2d = (/ 1,      1      /)
     ct2d = (/ ICHAR1, ICHAR2 /)
     CALL NcWr( DESC, fId, 'DESC', st2d, ct2d )
@@ -406,17 +398,15 @@ CONTAINS
 !
   SUBROUTINE TestNcdfRead
 !
-! !REVISION HISTORY: 
+! !REVISION HISTORY:
 !  03 Jul 2008 - R. Yantosca (Harvard University) - Initial version
-!  24 Jan 2012 - R. Yantosca - Modified to provide COARDS-compliant output
-!  31 Jan 2012 - R. Yantosca - Bug fix in error checks for attributes
-!  14 Jun 2012 - R. Yantosca - Now tests 2-D character read
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
 !
 ! !LOCAL VARIABLES:
-!   
+!
     ! Scalars
     INTEGER                :: fId,     rc,      XDim,    CDim1
     INTEGER                :: YDim,    ZDim,    TDim,    CDim2
@@ -432,7 +422,7 @@ CONTAINS
     REAL*4,    ALLOCATABLE :: PS(:,:,:)
     REAL*4,    ALLOCATABLE :: T(:,:,:,:)
     CHARACTER, ALLOCATABLE :: DESC(:,:)
-  
+
     !=========================================================================
     ! Open the netCDF file
     !=========================================================================
@@ -441,7 +431,7 @@ CONTAINS
     WRITE( 6, '(a)' ) '=== Begin netCDF file reading test ==='
 
     CALL Ncop_Rd( fId, 'my_filename.nc' )
-    
+
     !=========================================================================
     ! Get the dimensions
     !=========================================================================
@@ -459,16 +449,16 @@ CONTAINS
     CALL Check( 'Reading lat   (dim  )  back from netCDF file', rc, pCt, tCt )
 
     rc = ZDim - IVERT
-    CALL Check( 'Reading lev   (dim  )  back from netCDF file', rc, pCt, tCt ) 
+    CALL Check( 'Reading lev   (dim  )  back from netCDF file', rc, pCt, tCt )
 
     rc = TDim - ITIME
-    CALL Check( 'Reading time  (dim  )  back from netCDF file', rc, pCt, tCt ) 
+    CALL Check( 'Reading time  (dim  )  back from netCDF file', rc, pCt, tCt )
 
     rc = CDim1 - ICHAR1
-    CALL Check( 'Reading cdim1 (dim  )  back from netCDF file', rc, pCt, tCt ) 
+    CALL Check( 'Reading cdim1 (dim  )  back from netCDF file', rc, pCt, tCt )
 
     rc = CDim2 - ICHAR2
-    CALL Check( 'Reading cdim2 (dim  )  back from netCDF file', rc, pCt, tCt ) 
+    CALL Check( 'Reading cdim2 (dim  )  back from netCDF file', rc, pCt, tCt )
 
     !=========================================================================
     ! Read the LON variable
@@ -530,7 +520,7 @@ CONTAINS
     ! Read the PS variable
     !=========================================================================
 
-    ! Read data    
+    ! Read data
     ALLOCATE( ps( XDim, YDim, TDim ) )
     st3d = (/ 1,    1,    1    /)
     ct3d = (/ XDim, YDim, TDim /)
@@ -539,7 +529,7 @@ CONTAINS
     ! Equality test
     rc = SUM( PS ) - SIZE( PS )
     CALL Check( 'Reading PS             back from netCDF file', rc, pCt, tCt )
-    
+
     ! Read units attribute
     CALL NcGet_Var_Attributes( fId, 'PS', 'units', attValue )
     IF ( TRIM( attValue ) == 'hPa' ) THEN
@@ -580,7 +570,7 @@ CONTAINS
     ! Read the T variable
     !=========================================================================
 
-    ! Read data    
+    ! Read data
     ALLOCATE( T( XDim, YDim, ZDim, TDim ) )
     st4d = (/ 1,    1,    1,    1    /)
     ct4d = (/ XDim, YDim, ZDim, TDim /)
@@ -630,12 +620,12 @@ CONTAINS
     ! Read the DESC variable
     !=========================================================================
 
-    ! Read data    
+    ! Read data
     ALLOCATE( DESC( CDim1, CDim2 ) )
     st2d = (/ 1,    1      /)
     ct2d = (/ CDim1, CDim2 /)
     CALL NcRd( DESC, fId, 'DESC', st2d, ct2d )
-    
+
     ! Check that DESC was read properly
     rc = 0
     DO i = 1, ICHAR2
@@ -706,7 +696,7 @@ CONTAINS
 
     ! Echo info
     WRITE( 6, '(a)' ) '=== End of netCDF file read test! ==='
-    
+
   END SUBROUTINE TestNcdfRead
 !EOC
 !------------------------------------------------------------------------------
@@ -717,7 +707,7 @@ CONTAINS
 !
 ! !IROUTINE: Check
 !
-! !DESCRIPTION: Subroutine that prints "PASSED" or "FAILED" after each test.  
+! !DESCRIPTION: Subroutine that prints "PASSED" or "FAILED" after each test.
 !  Also increments the various counters of passed or failed tests.
 !\\
 !\\
@@ -726,7 +716,7 @@ CONTAINS
   SUBROUTINE Check( msg, rc, passCt, totCt )
 !
 ! !INPUT PARAMETERS:
-!    
+!
     CHARACTER(LEN=*), INTENT(IN)    :: msg     ! message to print
     INTEGER,          INTENT(IN)    :: rc      ! Return code
 !
@@ -735,12 +725,12 @@ CONTAINS
     INTEGER,          INTENT(INOUT) :: passCt  ! # of passed tests
     INTEGER,          INTENT(INOUT) :: totCt   ! # of total tests
 !
-! !REVISION HISTORY: 
+! !REVISION HISTORY:
 !  03 Jul 2008 - R. Yantosca (Harvard University) - Initial version
-!  14 Jun 2012 - R. Yantosca - Now add 10 more . characters
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
-!BOC  
+!BOC
 !
 ! !LOCAL VARIABLES:
 !
@@ -760,5 +750,6 @@ CONTAINS
 
   END SUBROUTINE Check
 !EOC
-END PROGRAM TestNcdfUtilities
+
+END PROGRAM TestNcdfUtil
 

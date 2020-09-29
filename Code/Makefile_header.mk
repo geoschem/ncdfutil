@@ -49,22 +49,7 @@
 #
 # !REVISION HISTORY: 
 #  04 Aug 2009 - R. Yantosca - Initial version
-#  01 Apr 2010 - R. Yantosca - Modified for netCDF-4.0.1 compiled for MPI
-#                              as built with the NASA baselibs.
-#  24 Jan 2012 - R. Yantosca - ifort is now the default compiler.  We will
-#                              invoke mpif90 at a later date.
-#  30 Jan 2012 - R. Yantosca - Now create/read modules in the $MOD directory
-#  30 Apr 2012 - R. Yantosca - Now set include & link paths 
-#  30 Apr 2012 - R. Yantosca - Now use -mcmodel=medium option for IFORT, PGI
-#  11 May 2012 - R. Yantosca - Now attempt to use nf-config, nc-config to
-#                              obtain the library linking sequence.  This will
-#                              make the Makefile much more portable
-#  11 May 2012 - R. Yantosca - Now use INC_NETCDF, BIN_NETCDF, LIB_NETCDF
-#                              env variables to specify directory paths
-#  18 Jul 2014 - R. Yantosca - Now use INC_HDF5, BIN_HDF5, LIB_HDF5
-#                              env variables to specify directory paths
-#  09 Nov 2015 - R. Yantosca - Now set COMPILER=mpifort when MPI=yes
-#  07 Mar 2017 - R. Yantosca - Replace COMPILER with COMPILER_FAMILY
+#  See https://github.com/geoschem/ncdfutil for complete history
 #EOP
 #------------------------------------------------------------------------------
 #BOC

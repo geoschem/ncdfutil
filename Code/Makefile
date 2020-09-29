@@ -38,12 +38,7 @@
 #
 # !REVISION HISTORY: 
 #  04 Aug 2009 - R. Yantosca - Initial version
-#  24 Jan 2012 - R. Yantosca - Now explicitly list all dependencies
-#  25 Jan 2012 - R. Yantosca - Added new module m_netcdf_io_readattr.F90
-#  30 Jan 2012 - R. Yantosca - Now create/read modules in the ../mod directory
-#  10 Jul 2014 - R. Yantosca - Now compile m_netcdf_handle_error.F90 and
-#                              ncdf_mod.F90 (to facilitate HEMCO + other pkgs)
-#  10 Jul 2014 - R. Yantosca - Now compile julday_mod.F and charpak_mod.F
+#  See https://github.com/geoschem/ncdfutil for complete history
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -91,7 +86,7 @@ OBJx := $(EXE:.x=.o)
 #-----------------
 charpak_mod.o            : charpak_mod.F90
 
-julday_mod.o             : julday_mod.F
+julday_mod.o             : julday_mod.F90
 
 m_do_err_out.o           : m_do_err_out.F90
 

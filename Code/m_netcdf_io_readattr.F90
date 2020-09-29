@@ -61,20 +61,17 @@ MODULE m_netcdf_io_readattr
   PRIVATE :: NcGet_Glob_Attr_R8_arr
 !
 ! !DESCRIPTION: Provides netCDF utility routines to read both netCDF
-!  variable attributes and global attributes.  Individual routines for 
+!  variable attributes and global attributes.  Individual routines for
 !  reading attributes of different types are overloaded with F90
 !  interfaces.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  30 Apr 2012 - R. Yantosca - Modified for compatibility with netCDF-3
-!  30 Apr 2012 - R. Yantosca - Added comments
-!  26 Sep 2013 - R. Yantosca - Add routines for reading vector attributes
-!  10 Jul 2014 - R. Yantosca - Cosmetic changes in ProTeX headers
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -108,14 +105,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a variable attribute (CHARACTER type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_TEXT,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -140,14 +135,14 @@ CONTAINS
 
     !  Get the attribute
     status = Nf_Get_Att_Text( fId, vId, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Var_Attr_C: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Var_Attr_C
 !EOC
 !------------------------------------------------------------------------------
@@ -178,14 +173,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a variable attribute (INTEGER type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_INT,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -210,14 +203,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Int( fId, vId, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Var_Attr_I4: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Var_Attr_I4
 !EOC
 !------------------------------------------------------------------------------
@@ -248,14 +241,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a variable attribute (REAL*4 type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_REAL,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -280,14 +271,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Real( fId, vId, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Var_Attr_R4: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Var_Attr_R4
 !EOC
 !------------------------------------------------------------------------------
@@ -318,14 +309,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a variable attribute (REAL*4 type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use internal function NF_GET_ATT_DOUBLE,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -350,14 +339,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Double( fId, vId, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Var_Attr_R8: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Var_Attr_R8
 !EOC
 !------------------------------------------------------------------------------
@@ -388,14 +377,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a variable attribute (INTEGER type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_INT,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -420,14 +407,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Int( fId, vId, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Var_Attr_I4_arr: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Var_Attr_I4_arr
 !EOC
 !------------------------------------------------------------------------------
@@ -458,14 +445,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a variable attribute (REAL*4 type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_REAL,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -490,14 +475,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Real( fId, vId, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Var_Attr_R4_arr: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Var_Attr_R4_arr
 !EOC
 !------------------------------------------------------------------------------
@@ -528,14 +513,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a variable attribute (REAL*4 type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use internal function NF_GET_ATT_DOUBLE,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -560,14 +543,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Double( fId, vId, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Var_Attr_R8_arr: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Var_Attr_R8_arr
 !EOC
 !------------------------------------------------------------------------------
@@ -597,14 +580,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a global attribute (CHARACTER type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_TEXT,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -619,14 +600,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Text( fId, NF_GLOBAL, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Glob_Attr_C: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Glob_Attr_C
 !EOC
 !------------------------------------------------------------------------------
@@ -656,14 +637,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a global attribute (INTEGER type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_INT,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -678,14 +657,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Int( fId, NF_GLOBAL, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Glob_Attr_I4: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Glob_Attr_I4
 !EOC
 !------------------------------------------------------------------------------
@@ -715,14 +694,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a global attribute (REAL*4 type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_REAL,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -737,14 +714,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Real( fId, NF_GLOBAL, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Glob_Attr_R4: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Glob_Attr_R4
 !EOC
 !------------------------------------------------------------------------------
@@ -774,14 +751,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a global attribute (REAL*8 type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_DOUBLE,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -796,14 +771,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Double( fId, NF_GLOBAL, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Glob_Attr_R8: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Glob_Attr_R8
 !EOC
 !------------------------------------------------------------------------------
@@ -833,14 +808,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a global attribute (INTEGER type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_INT,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -855,14 +828,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Int( fId, NF_GLOBAL, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Glob_Attr_I4_arr: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Glob_Attr_I4_arr
 !EOC
 !------------------------------------------------------------------------------
@@ -892,14 +865,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a global attribute (REAL*4 type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_REAL,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -914,14 +885,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Real( fId, NF_GLOBAL, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Glob_Attr_R4_arr: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Glob_Attr_R4_arr
 !EOC
 !------------------------------------------------------------------------------
@@ -951,14 +922,12 @@ CONTAINS
 ! !DESCRIPTION: Reads a global attribute (REAL*8 type) from a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Bob Yantosca (based on code by Jules Kouatchou and Maharaj Bhat)
 !
 ! !REVISION HISTORY:
 !  25 Jan 2012 - R. Yantosca - Initial version
-!  31 Jan 2012 - R. Yantosca - Zero attValue before reading attributes
-!  30 Apr 2012 - R. Yantosca - Use netCDF library function NF_GET_ATT_DOUBLE,
-!                              which is compatible w/ netCDF3
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -973,14 +942,14 @@ CONTAINS
 
     ! Get the attribute
     status = Nf_Get_Att_Double( fId, NF_GLOBAL, attName, attValue )
-    
+
     ! Exit w/ error message if unsuccessful
     IF ( status /= NF_NOERR ) THEN
        errMsg = 'In NcGet_Glob_Attr_R8_arr: cannot read attribute : ' // &
                  TRIM( attName )
        CALL Do_Err_Out( errMsg, .TRUE., 0, 0, 0, 0, 0.0d0, 0.0d0 )
     endif
-    
+
   END SUBROUTINE NcGet_Glob_Attr_R8_arr
 !EOC
 END MODULE m_netcdf_io_readattr

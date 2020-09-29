@@ -19,12 +19,11 @@ module m_Do_Err_Out
 ! !DESCRIPTION: Provides a routine to print an error message and exit the code.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  10 Jul 2014 - R. Yantosca - Now use F90 free-format indentation
-!  10 Jul 2014 - R. Yantosca - Cosmetic changes to ProTeX headers
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -67,25 +66,21 @@ CONTAINS
 ! !DESCRIPTION: Outputs error messages, and exits if requested.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REMARKS:
 !  NOTE: SHOULD PROPAGATE ERROR CODE TO MAIN PROGRAM LEVEL!
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!  07 Mar 2017 - R. Yantosca - Now exit with error code 999, to avoid an
-!                              inadvertent error code of 0 being returned
-!  08 Nov 2017 - R. Yantosca - Now flush the buffer after writing,
-!                              to be visilble after stop (esp. w/ gfortran)
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
 
     ! Write separator
     WRITE( 6, '(/,a,/)' ) REPEAT( '!', 79 )
-    
+
     ! Write error message
     WRITE( 6,'(a)' ) TRIM( err_msg )
 
@@ -110,7 +105,7 @@ CONTAINS
 
     ! Stop with error (if requested)
     ! NOTE: We should pass back the error code to the main routine
-    IF ( err_do_stop ) THEN 
+    IF ( err_do_stop ) THEN
         WRITE( 6, '(a,/)' ) 'Code stopped from DO_ERR_OUT '               // &
                             '(in module NcdfUtil/m_do_err_out.F90) '
         WRITE( 6, '(a)'   ) 'This is an error that was encountered '      // &

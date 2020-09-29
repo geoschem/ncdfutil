@@ -11,7 +11,7 @@
       MODULE m_netcdf_io_read
 !
 ! !USES:
-! 
+!
       IMPLICIT NONE
       PRIVATE
 !
@@ -32,7 +32,7 @@
          MODULE PROCEDURE Ncrd_2d_R8
          MODULE PROCEDURE Ncrd_2d_R4
          MODULE PROCEDURE Ncrd_2d_Int
-         MODULE PROCEDURE Ncrd_2d_Char         
+         MODULE PROCEDURE Ncrd_2d_Char
          MODULE PROCEDURE Ncrd_3d_R8
          MODULE PROCEDURE Ncrd_3d_R4
          MODULE PROCEDURE Ncrd_3d_Int
@@ -50,19 +50,11 @@
 ! !DESCRIPTION: Routines for reading variables in a netCDF file.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!  03 Jul 2008 - R. Yantosca - Now overload all module methods with a 
-!                              single public interface.
-!  26 Oct 2011 - R. Yantosca - Add REAL*8 and REAL*4 versions of all 
-!                              NCRD_* routines.
-!  20 Dec 2011 - R. Yantosca - Added Ncwr_4d_Int 
-!  20 Dec 2011 - R. Yantosca - Make process more efficient by not casting
-!                              to temporary variables after file read
-!  04 Feb 2015 - C. Keller   - Added 7d reading routines.
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -98,12 +90,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a netCDF scalar variable.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -165,12 +156,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a netCDF integer scalar variable.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -220,8 +210,8 @@ CONTAINS
 ! !INPUT PARAMETERS:
 !!    ncid     : netCDF file id to read array input data from
 !!    varname  : netCDF variable name for array
-!!    strt1d   : vector specifying the index in varrd_1d where 
-!!               the first of the data values will be read 
+!!    strt1d   : vector specifying the index in varrd_1d where
+!!               the first of the data values will be read
 !!    cnt1d    : varrd_1d dimension
       integer          , intent(in)   :: ncid
       character (len=*), intent(in)   :: varname
@@ -237,15 +227,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 1D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_1d_R8.  REAL*8 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_1d directly from file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_GET_VARA_DOUBLE
-!  24 Jan 2013 - C. Keller   - Added optional input arguments err_stop
-!                              and stat
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -317,8 +303,8 @@ CONTAINS
 ! !INPUT PARAMETERS:
 !!    ncid     : netCDF file id to read array input data from
 !!    varname  : netCDF variable name for array
-!!    strt1d   : vector specifying the index in varrd_1d where 
-!!               the first of the data values will be read 
+!!    strt1d   : vector specifying the index in varrd_1d where
+!!               the first of the data values will be read
 !!    cnt1d    : varrd_1d dimension
       integer          , intent(in)   :: ncid
       character (len=*), intent(in)   :: varname
@@ -334,14 +320,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 1D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_1d_R4.  REAL*4 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_1d directly from file
-!  24 Jan 2013 - C. Keller   - Added optional input arguments err_stop
-!                              and stat
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -415,8 +398,8 @@ CONTAINS
 !
 !!    ncid     : netCDF file id to read array input data from
 !!    varname  : netCDF variable name for array
-!!    strt1d   : vector specifying the index in varrd_1di where 
-!!               the first of the data values will be read 
+!!    strt1d   : vector specifying the index in varrd_1di where
+!!               the first of the data values will be read
 !!    cnt1d    : varrd_1di dimension
       integer          , intent(in)   :: ncid
       character (len=*), intent(in)   :: varname
@@ -429,15 +412,15 @@ CONTAINS
       integer          , intent(out)  :: varrd_1di(cnt1d(1))
       integer, optional, intent(out)  :: stat
 !
-! !DESCRIPTION: Reads in a 1D netCDF integer array and does some error 
+! !DESCRIPTION: Reads in a 1D netCDF integer array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -525,14 +508,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 2D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_2d_R8.  REAL*8 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_2d directly from file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_GET_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -545,7 +525,7 @@ CONTAINS
       ierr = Nf_Inq_Varid (ncid, varname, varid)
 
       if (ierr /= NF_NOERR) then
-        err_msg = 'In Ncrd_2d_R8 #1:  ' // Trim (varname) // & 
+        err_msg = 'In Ncrd_2d_R8 #1:  ' // Trim (varname) // &
                   ', ' // Nf_Strerror (ierr)
         call Do_Err_Out (err_msg, .true., 1, ncid, 0, 0, 0.0d0, 0.0d0)
       end if
@@ -594,12 +574,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 2D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_2d_R4.  REAL*4 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_2d directly from file
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -612,7 +591,7 @@ CONTAINS
       ierr = Nf_Inq_Varid (ncid, varname, varid)
 
       if (ierr /= NF_NOERR) then
-        err_msg = 'In Ncrd_2d_R4 #1:  ' // Trim (varname) // & 
+        err_msg = 'In Ncrd_2d_R4 #1:  ' // Trim (varname) // &
                   ', ' // Nf_Strerror (ierr)
         call Do_Err_Out (err_msg, .true., 1, ncid, 0, 0, 0.0d0, 0.0d0)
       end if
@@ -658,15 +637,15 @@ CONTAINS
 !!    varrd_2di : intger array to fill
       integer          , intent(out)  :: varrd_2di(cnt2d(1), cnt2d(2))
 !
-! !DESCRIPTION: Reads in a 2D netCDF integer array and does some error 
+! !DESCRIPTION: Reads in a 2D netCDF integer array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -729,13 +708,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 3D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_3d_R8.  REAL*8 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_3d directly from file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_GET_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -798,13 +775,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 3D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_3d_R4.  REAL*4 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_3d directly from file
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -864,16 +839,15 @@ CONTAINS
       integer          , intent(out)  :: varrd_3di(cnt3d(1), cnt3d(2), &
                                                    cnt3d(3))
 !
-! !DESCRIPTION: Reads in a 3D netCDF integer array and does some error 
+! !DESCRIPTION: Reads in a 3D netCDF integer array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -936,13 +910,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 4D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_4d_R8.  REAL*8 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_4d directly from file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_GET_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1006,12 +978,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 4D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_4d_R4.  REAL*4 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_4d directly from file
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1071,16 +1042,15 @@ CONTAINS
       integer          , intent(out)  :: varrd_4di(cnt4d(1), cnt4d(2), &
                                                    cnt4d(3), cnt4d(4))
 !
-! !DESCRIPTION: Reads in a 3D netCDF integer array and does some error 
+! !DESCRIPTION: Reads in a 3D netCDF integer array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1144,13 +1114,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 5D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_45_R8.  REAL*8 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_5d directly from file
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_GET_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1214,12 +1182,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 5D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_45_R4.  REAL*4 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_5d directly from file
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1283,12 +1250,12 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 5D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
 !  20 Dec 2011 - R. Yantosca - Initial version
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_GET_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1352,12 +1319,11 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 5D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  26 Oct 2011 - R. Yantosca - Renamed to Ncrd_45_R4.  REAL*4 version.
-!  20 Dec 2011 - R. Yantosca - Now read varrd_5d directly from file
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1422,12 +1388,12 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 7D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
 !  20 Dec 2011 - R. Yantosca - Initial version
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_GET_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1492,12 +1458,12 @@ CONTAINS
 ! !DESCRIPTION: Reads in a 7D netCDF real array and does some error checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  John Tannahill (LLNL) and Jules Kouatchou
 !
 ! !REVISION HISTORY:
 !  20 Dec 2011 - R. Yantosca - Initial version
-!  20 Dec 2011 - R. Yantosca - Now use netCDF function NF_GET_VARA_DOUBLE
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1545,8 +1511,8 @@ CONTAINS
 !
 !!    ncid     : netCDF file id to read array input data from
 !!    varname  : netCDF variable name for array
-!!    strt1d   : vector specifying the index in varrd_1dc where 
-!!               the first of the data values will be read 
+!!    strt1d   : vector specifying the index in varrd_1dc where
+!!               the first of the data values will be read
 !!    cnt1d    : varrd_1dc dimension
       integer          , intent(in)   :: ncid
       character (len=*), intent(in)   :: varname
@@ -1557,15 +1523,14 @@ CONTAINS
 !!    varrd_1dc : intger array to fill
       character (len=1), intent(out)  :: varrd_1dc(cnt1d(1))
 !
-! !DESCRIPTION: Reads in a 1D netCDF character array and does some error 
+! !DESCRIPTION: Reads in a 1D netCDF character array and does some error
 !  checking.
 !\\
-!\\ !AUTHOR: 
+!\\ !AUTHOR:
 !  Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
@@ -1624,16 +1589,15 @@ CONTAINS
 !!    varrd_2dc : charcter array to fill
       character        , intent(out)  :: varrd_2dc(cnt2d(1), cnt2d(2))
 !
-! !DESCRIPTION: Reads in a 2D netCDF character array and does some error 
+! !DESCRIPTION: Reads in a 2D netCDF character array and does some error
 !  checking.
 !\\
 !\\
-! !AUTHOR: 
+! !AUTHOR:
 !  Jules Kouatchou
 !
 ! !REVISION HISTORY:
-!  Initial code.
-!
+!  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
 !-------------------------------------------------------------------------
 !BOC
