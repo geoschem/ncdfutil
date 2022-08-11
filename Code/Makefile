@@ -51,7 +51,7 @@
 SHELL := /bin/bash
 BIN   := ../bin
 DOC   := ../doc
-EXE   := TestNcdfUtilities.x
+EXE   := TestNcdfUtil.x
 LIB   := ../lib
 MOD   := ../mod
 
@@ -130,7 +130,7 @@ ncdf_mod.o               : ncdf_mod.F90                 \
                            julday_mod.o                 \
                            charpak_mod.o
 
-TestNcdfUtilities.o      : TestNcdfUtilities.F90        \
+TestNcdfUtilities.o      : TestNcdfUtil.F90             \
                            m_do_err_out.o               \
                            m_netcdf_io_handle_err.o     \
                            m_netcdf_io_create.o         \
@@ -161,15 +161,11 @@ check: $(OBJx)
 doc:
 	$(MAKE) -C $(DOC) doc
 
-docclean:
-	$(MAKE) -C $(DOC) clean
-
 clean:
 	rm -f *.a *.mod *.o *.nc *.x 
 
-realclean:
+distclean:
 	$(MAKE) clean
-	$(MAKE) docclean
 	rm -f $(BIN)/*.x
 	rm -f $(LIB)/*.a
 	rm -f $(MOD)/*.mod

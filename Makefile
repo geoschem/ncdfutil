@@ -48,14 +48,8 @@ check:
 clean:
 	$(MAKE) -C $(DIR) clean
 
-realclean:
+distclean:
 	$(MAKE) -C $(DIR) realclean
-
-doc:
-	$(MAKE) -C $(DIR) doc
-
-docclean:
-	$(MAKE) -C $(DIR) docclean
 
 help:
 	$(MAKE) -C $(DIR) help
