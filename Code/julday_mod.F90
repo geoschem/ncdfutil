@@ -15,8 +15,6 @@ MODULE JULDAY_MOD
 !
 ! !USES:
 !
-  USE PRECISION_MOD    ! For GEOS-Chem Precision (fp)
-
   IMPLICIT NONE
   PRIVATE
 !
