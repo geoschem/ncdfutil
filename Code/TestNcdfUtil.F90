@@ -16,6 +16,8 @@ PROGRAM TestNcdfUtil
 !
 ! !USES:
 !
+  USE netCDF
+
   ! Modules for netCDF write
   USE m_netcdf_io_define
   USE m_netcdf_io_create
@@ -29,10 +31,6 @@ PROGRAM TestNcdfUtil
   USE m_netcdf_io_close
 
   IMPLICIT NONE
-
-  ! netCDF include files
-# include "netcdf.inc"
-
 !
 ! !BUGS:
 !  None known at this time
@@ -186,7 +184,7 @@ CONTAINS
     CALL NcCr_Wr( fId, 'my_filename.nc' )
 
     ! Turn filling off
-    CALL NcSetFill( fId, NF_NOFILL, omode )
+    CALL NcSetFill( fId, NF90_NOFILL, omode )
 
     !=========================================================================
     ! Define the dimensions
@@ -247,7 +245,7 @@ CONTAINS
     begin_d = '20110101'
     begin_t = '000000'
     incr    = '000000'
-    CALL NcDef_Variable      ( fId, 'time', NF_INT,  1, var1, vId, COMPRESS )
+    CALL NcDef_Variable      ( fId, 'time', NF90_INT,  1, var1, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'time'           )
     CALL NcDef_Var_Attributes( fId, vId, 'units',          TRIM( units   )  )
     CALL NcDef_Var_Attributes( fId, vId, 'delta_t',        TRIM( delta_t )  )
@@ -257,25 +255,25 @@ CONTAINS
 
     ! Define vertical (pressure) variable
     var1 = (/ idLev /)
-    CALL NcDef_Variable( fId, 'lev', NF_DOUBLE, 1, var1, vId, COMPRESS )
+    CALL NcDef_Variable( fId, 'lev', NF90_DOUBLE, 1, var1, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name', 'Pressure'       )
     CALL NcDef_Var_Attributes( fId, vId, 'units',     'hPa'            )
 
     ! Define latitude variable
     var1 = (/ idLat /)
-    CALL NcDef_Variable( fId, 'lat', NF_DOUBLE, 1, var1, vId, COMPRESS )
+    CALL NcDef_Variable( fId, 'lat', NF90_DOUBLE, 1, var1, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name', 'Latitude'       )
     CALL NcDef_Var_Attributes( fId, vId, 'units',     'degrees_north'  )
 
     ! Define longitude variable
     var1 = (/ idLon /)
-    CALL NcDef_Variable( fId, 'lon', NF_DOUBLE, 1, var1, vId, COMPRESS )
+    CALL NcDef_Variable( fId, 'lon', NF90_DOUBLE, 1, var1, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId,  'long_name', 'Longitude'     )
     CALL NcDef_Var_Attributes( fId, vId,  'units',     'degrees_east'  )
 
     ! Define surface pressure variable
     var3 = (/ idLon, idLat, idTime /)
-    CALL NcDef_Variable      ( fId, 'PS', NF_FLOAT, 3, var3, vId, COMPRESS    )
+    CALL NcDef_Variable      ( fId, 'PS', NF90_FLOAT, 3, var3, vId, COMPRESS  )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'Surface Pressure' )
     CALL NcDef_Var_Attributes( fId, vId, 'units',          'hPa'              )
     CALL NcDef_Var_Attributes( fId, vId, 'gamap_category', 'GMAO-2D'          )
@@ -292,7 +290,7 @@ CONTAINS
 
     ! Define temperature variable
     var4 = (/ idLon, idLat, idLev, idTime /)
-    CALL NcDef_Variable      ( fId, 'T', NF_FLOAT, 4, var4, vId, COMPRESS     )
+    CALL NcDef_Variable      ( fId, 'T', NF90_FLOAT, 4, var4, vId, COMPRESS   )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'Temperature'      )
     CALL NcDef_Var_Attributes( fId, vId, 'units',          'K'                )
     CALL NcDef_Var_Attributes( fId, vId, 'gamap_category', 'GMAO-3D$'         )
@@ -303,7 +301,7 @@ CONTAINS
 
     ! Define description variable
     var2 = (/ idChar1, idChar2 /)
-    CALL NcDef_Variable      ( fId, 'DESC', NF_CHAR, 2, var2, vId, COMPRESS   )
+    CALL NcDef_Variable      ( fId, 'DESC', NF90_CHAR, 2, var2, vId, COMPRESS )
     CALL NcDef_Var_Attributes( fId, vId, 'long_name',      'Description'      )
     CALL NcDef_Var_Attributes( fId, vId, 'units',          '1'                )
     CALL NcDef_Var_Attributes( fId, vId, 'gamap_category', 'none'             )

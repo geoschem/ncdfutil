@@ -1,6 +1,5 @@
 !------------------------------------------------------------------------------
-!       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
-!                      and NASA/GSFC, SIVO, Code 610.3                        !
+!                  GEOS-Chem Global Chemical Transport Model                  !
 !------------------------------------------------------------------------------
 !BOP
 !
@@ -22,6 +21,9 @@ module m_netcdf_io_handle_err
 ! !AUTHOR:
 !  Jules Kouatchou
 !
+! !REMARKS:
+!  This file is based on code from NASA/GSFC, SIVO, Code 610.3
+!
 ! !REVISION HISTORY:
 !  See https://github.com/geoschem/ncdfutil for complete history
 !EOP
@@ -30,8 +32,7 @@ module m_netcdf_io_handle_err
 CONTAINS
 !EOC
 !------------------------------------------------------------------------------
-!       NcdfUtilities: by Harvard Atmospheric Chemistry Modeling Group        !
-!                      and NASA/GSFC, SIVO, Code 610.3                        !
+!                  GEOS-Chem Global Chemical Transport Model                  !
 !------------------------------------------------------------------------------
 !BOP
 !
@@ -43,11 +44,8 @@ CONTAINS
 !
 ! !USES:
 !
+    use netCDF
     use m_do_err_out
-!
-    implicit none
-!
-    include "netcdf.inc"
 !
 ! !INPUT PARAMETERS:
 !   ierr : netCDF error number
@@ -68,7 +66,7 @@ CONTAINS
 ! !LOCAL VARIABLES:
     character (len=512) :: err_msg
 !
-    err_msg = 'In Nchandle_Err:  ' // Nf_Strerror (ierr)
+    err_msg = 'In Nchandle_Err:  ' // NF90_Strerror (ierr)
 
     call Do_Err_Out (err_msg, .true., 0, 0, 0, 0, 0.0d0, 0.0d0)
 
